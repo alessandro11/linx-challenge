@@ -1,0 +1,7 @@
+\section{DESAFIO - Parte 1} \label{sec:desafio1}
+
+Estamos enviando pelos links abaixo alguns binários executáveis (ELF 64-bit LSB) que realizam tarefas bem simples, que podem ou não ser úteis. O exercício é que você descubra o que esses binários fazem, utilizando as ferramentas que julgar mais adequadas.
+
+Como resposta, esperamos que você nos diga o que você acha que eles fazem e
+quais foram as ferramentas usadas para isso, bem como uma linha geral do seu ra-
+ciocínio para chegar às conclusões.

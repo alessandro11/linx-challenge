@@ -1,0 +1,66 @@
+\begin{titlepage}
+    \begin{wrapfigure}{l}{0.2\linewidth}
+        \includegraphics[width=\linewidth]{imagens/logo2.eps}
+        \label{fig:logo2}
+    \end{wrapfigure}
+    \noindent{MINISTÉRIO DA EDUCAÇÃO\\
+    UNIVERSIDADE FEDERAL DO PARANÁ}
+
+    \vspace{3em}
+
+    \begin{table}[!ht]
+        \center
+        \begin{tabular}{|p{8cm}|p{7cm}|}
+            \hline
+            \makecell[l]{Contratante/Concedente:\\\textbf{Universidade Federal do Paraná}} & \makecell[l]{CNPJ:\\\textbf{75.095.679/0001-49}}\\
+            \hline
+        \end{tabular}
+    \end{table}
+
+    \begin{table}[!ht]
+        \center
+        \begin{tabular}{|p{8cm}|p{7cm}|}
+            \hline
+            Contratada/Convenente: & CNPJ:\\ [1.5em]
+            \hline
+        \end{tabular}
+    \end{table}
+
+    \begin{table}[!ht]
+        \center
+        \begin{tabular}{p{1.525cm}p{1.525cm}p{1.525cm}p{1.525cm}p{1.525cm}p{1.525cm}p{1.525cm}p{1.525cm}}
+            \hline
+            \multicolumn{5}{|p{8cm}}{Nome do Coordenador:} & \multicolumn{3}{|p{7cm}|}{CPF:}\\ [1.5em]
+            \hline
+            \multicolumn{4}{|p{8cm}}{Departamento:} & \multicolumn{4}{|p{7cm}|}{Setor:}\\ [1.5em]
+            \hline
+            \multicolumn{4}{|p{7cm}}{Nº da portaria de nomeação, se houver:} & \multicolumn{4}{|p{7cm}|}{Noº do Processo na UFPR:}\\ [1.5em] \hline
+            \bottomrule
+            \hline
+            \multicolumn{4}{|c}{\thead{ Nº do instrumento legal}} & \multicolumn{4}{|c|}{\thead{Vigência}}\\
+            \hline
+            \multicolumn{2}{|p{4cm}}{Na UFPR:} & \multicolumn{2}{|l}{Externo:} &
+            \multicolumn{2}{|p{3cm}}{Início:} & \multicolumn{2}{|l|}{Fim:}\\ [1.5em]
+            \hline
+        \end{tabular}
+    \end{table}
+    
+    \begin{table}[!ht]
+        \center
+        \begin{tabular}{|p{6cm}|p{3cm}|p{5cm}|}
+            \hline
+            \makecell[l]{Gestão por Fundação de Apoio\\(\hspace{5mm}) Sim (\hspace{5mm}) Não} &
+            \makecell[|l]{Fundação\\(\hspace{5mm}) FUPEF\\(\hspace{5mm}) FUNPAR} &
+            \makecell[|l]{\vspace{2em} Nº controle na Fundação:}\\ [1.5em]
+            \hline
+        \end{tabular}
+    \end{table}
+
+    
+    \begin{center}
+        \Large{\textbf{RELATÓRIO TÉCNICO DE ATIVIDADES}} \\
+        Período 01/01/2019 à 31/12/2019\\
+    \end{center}
+    
+    \clearpage
+\end{titlepage}

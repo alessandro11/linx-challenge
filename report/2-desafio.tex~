@@ -1,0 +1,271 @@
+\section{Metas, Etapas e Atividades Desenvolvidas}
+
+%
+% Relatar as atividades desenvolvidas e o cumprimento das metas e etapas
+% no período informado. Caso não tenham sido cumpridas ou ocorrido algum
+% atraso, favor esclarecer e documentar.
+%
+
+
+
+
+%\begin{table}[!ht]
+%    \caption{Nome tabela}
+%    \centering
+%    \label{tab:exemplo}
+%    \begin{center}
+%        \begin{tabular}{l|ccc}
+%            Algoritmo & Tempo 1 & Tempo 2 & Tempo 3 \\
+%            \hline
+%            \hline
+%            Quicksort  &  10    &  20     &   30 \\
+%            HeapSort   &  10    &  60     &  530 \\
+%            BublleSort & 100    & 100     & 1000 \\
+%        \end{tabular}
+%    \end{center}
+%\end{table}
+
+
+
+
+%
+% ANEXAR:
+% 1. Extrato da ata do Conselho Setorial aprovando o Relatório Técnico de Atividades;
+% 2. Balancete do projeto, emitido pela fundação de apoio, demonstrando as movimentações
+%   financeiras realizadas na conta específica do projeto no interstício e acumulado.
+%   
+
+\meta{2.a 01/2018 à 06/2019} {
+    Pesquisa/implementação de prova de conceito dos agentes de monitoração para dispositivos móveis.
+}
+
+\realizado{2.a 01/2018 à 06/2019} {
+    Uma pesquisa ampla sobre como monitorar equipamentos hospitalares foram executadas, uma das tecnologias que se mostrou eficiente e eficaz é o sistema de Radio-Frequency IDentification (RFID) para monitoração de dispositivos móveis RTLS. A tecnologia RFID, que utiliza frequências de rádio e retorna a posição do objeto monitorado em tempo real. Utilizando-se das tags do RFID que estariam acopladas nos equipamentos que se deseja monitorar pode-se ter noção da localização em tempo real do objeto monitorado, garantindo que o mesmo está na área designada. Todos os dispositivos monitorados estarão conectados a uma base de dados que irá guardar as informações de interesse do dispositivos que podem ir muito além da localização. O relatório sobre esta pesquisa se encontra no Anexo~\ref{anexo:moni_equip_moveis}. No entanto a implementação se deu por uma abordagem mais enxuta a fim de contemplar a prototipação.
+
+    Para integrar com agentes de monitoração já proposto no relatório de 2018 foi arquitetado e implementado a prova de conceito através de aplicação Android, no qual contempla as seguintes funcionalidades (na figura~\ref{fig:android_main_interface} se encontra a interface principal do app Android):
+}
+
+\begin{figure}[H]
+    \filcenter
+    \includegraphics[height=0.65\textwidth, width=\linewidth, keepaspectratio]{imagens/iface3.jpeg}
+    \caption{Interface principal do App Android.}
+    \label{fig:android_main_interface}
+\end{figure}
+
+\begin{enumerate}[label=(\roman*)]
+    \item Cadastro de equipamento hospitalares através do aplicativo, seja acelerador linear ou outro equipamento se assim desejar. Pode-se deixar pré-cadastrado algumas informações, como foto da série do equipamento, hospitais participantes do projeto. Deste modo se torna mais fácil e ágil o cadastro dos equipamentos, pois o colaborador dentro de uma unidade monitorada, ao cadastrar um equipamento, o endereço seria automaticamente preenchido por sua geolocalização, fotos ilustrativa do equipamento poderia ser selecionado, como é mostrado nas figuras~\ref{fig:android_cad1}.
+    
+    \begin{figure}[!h]
+        \filcenter
+        \includegraphics[height=0.65\textwidth, width=\linewidth, keepaspectratio]{imagens/cadastro.jpg}
+        \caption{Cadastro do equipamento feito pelo App Android.}
+        \label{fig:android_cad1}
+    \end{figure}    
+    
+    \item Visualização dos equipamentos através de uma lista cadastrada dos equipamentos e ou leitura do ``Quick Response code`` (QR code) que deverá estar impresso no equipamento em questão. Uma vez que o usuário escanear o código as seguintes informações serão apresentadas:
+    \begin{itemize}
+        \item Número de série do equipamento.
+        \item Foto do equipamento.
+        \item Estado atual do equipamento, se em funcionamento, quebrado etc.
+        \item Data da última manutenção.
+        \item Data da próxima manutenção.
+        \item Endereço onde se encontra o equipamento com geolocalização.
+    \end{itemize}
+\end{enumerate}
+
+\begin{figure}[H]
+    \filcenter
+    \includegraphics[height=0.65\textwidth, width=\linewidth, keepaspectratio]{imagens/diagrama-qr.png}
+    \caption{Interação com a consulta de um equipamento monitorado através do QR-code.}
+    \label{fig:android_qr-code1}
+\end{figure}
+
+Na figura~\ref{fig:android_qr-code1} observamos que ao ler o QR-code a consulta é feita em nossa base de dados por este equipamento, e caso esteja em nossa base é apresentado as informações citadas acima. Um zoom da tela do App é mostrado na figura~\ref{fig:android_qr-code2}.
+
+\begin{figure}[H]
+    \filcenter
+    \includegraphics[height=0.65\textwidth, width=\linewidth, keepaspectratio]{imagens/info-qr.jpeg}
+    \caption{Interação com a consulta de um equipamento monitorado através do QR-code.}
+    \label{fig:android_qr-code2}
+\end{figure}
+
+Além do cadastro e visualização dos equipamentos hospitalares através do app, é possível usufruir de todo conteúdo da plataforma Pesquisa e Inovação em Sistemas de Informação para Saúde, como visualizar gráficos de uma série temporal como mostra a figura~\ref{fig:android_dist_temporal}:
+
+\begin{figure}[H]
+    \filcenter
+    \includegraphics[height=0.65\textwidth, width=\linewidth, keepaspectratio]{imagens/iface2.jpeg}
+    \caption{Série temporal de atendimentos dentro do App, classificados por convênio e suas taxas.}
+    \label{fig:android_dist_temporal}
+\end{figure}
+\clearpage
+
+
+\meta{2.b 03/2018 à 12/2019} {
+    Pesquisa/implementação de prova de conceito dos agentes de monitoração em software Documento para outras plataformas.
+}
+
+\realizado{2.b 03/2018 à 12/2019} {
+    Primeiramente a pesquisa foi feita com os critérios: agente ativo (dentro do hospital monitorado), inserir a menor entropia no ambiente hospitalar, dispositivo de fácil mobilidade e compatibilidade. Para tal, decidiu-se em brain storm junto a equipe do projeto na utilização de Raspberry PI3, arquitetura ARM, por ser um dispositivo pequeno, com um bom processamento, com as interfaces desejadas. Contudo, visionou-se em levar o projeto além, e queremos fazer mais pré-processamento dentro do dispositivo do agente de coleta, então em um novo brainstorm decidiu-se em substituir por um equipamento com hardware mais potente, uma máquina UltraTop, arquitetura x86, ainda menor que um servidor e maior que um Raspberry, cujo possível processamento de imagens do setor de oncologia pudessem serem pré-processadas, dentre disto, visionado um futuro Plano de Trabalho (PTA) junto ao MS, adotou-se. Como fora implementado em uma arquitetura plataforma transversal (cross plataforma java) pode-se executar em diferentes plataformas. O código fonte pode ser encontrado no Anexo~\ref{anexo:src_code}.
+}
+
+\clearpage
+\meta{2.c 03/2017 à 06/2019} {
+    Prova de conceito e testes com equipamento específico (piloto: acelerador linear)
+}
+
+\realizado{2.c 03/2017 à 06/2019} {
+    Primeiramente foi estudado o banco de dados da Varian para conseguir  extrair as informações relevantes ao projeto. Depois de um estudo aprofundado do manual, foi criada uma divisão abstrata do banco a fim de facilitar as manipulações do mesmo. O banco foi dividido em: Paciente, Curso de Tratamento e Equipamento utilizado no tratamento em questão.
+    
+    Paciente: uma das informações que foram julgadas como de interesse para o projeto foi o número do cartão SUS, no qual funciona como um identificador (ID) único do paciente, o atributo tipo de paciente (PatientType) dizendo o situação do paciente que pode estar como ativo, arquivado ou excluído. O atributo situação do paciente (PatientStatus), informa se o paciente é novo ou não. Os dados supra citados fazem parte da classe de dados sensíveis, por este motivo e respeitando este Plano de Trabalho e leis vigente, foi executado um trabalho de Anonimização no banco de dados, como mostra a figura~\ref{fig:anonimizacao} referentes a essas informações, a fim de garantir a privacidade dos pacientes que possuem os dados armazenados neste banco. 
+    
+    \begin{figure}[H]
+        \filcenter
+        \includegraphics[height=0.2\textwidth, width=\linewidth, keepaspectratio]{imagens/tuplas_anon.png}
+        \caption{Amostra dos dados sensíveis de pacientes estão anônimos no banco de dados.}}
+        \label{fig:anonimizacao}
+    \end{figure}    
+    
+    Curso de tratamento: informações sobre o curso do tratamento para um paciente. Este referente a todas as etapas que um paciente passou durante seu tratamento, como por exemplo por quanto tempo ele ficou recebendo raios do acelerador linear, a quantidade de raios recebidos, as datas de início e finalização, quais foram as radiações aplicadas nele e qual tipo de técnica foi utilizada (Brachy, Linac (padrão), Proton)  Um paciente pode ter zero, um ou mais cursos. A situação do curso é Ativo, Concluído ou Restaurado.
+    
+    Equipamentos: para que o investimento seja efetivo ao cidadão, as informações coletadas podem garantir uma manutenção periódica e preventiva. Como exemplo citamos um possível questionamento dentre os gestores do MS, em qual janela (por tempo e ou raio) seria ideal um equipamento receber manutenção? para tal feito, o futuro depósito de dados (Datawarehouse) responderia através dos seguintes atributos sendo coletados: energia do equipamento, tipos e quantidade de raios utilizados nos tratamentos, data da instalação e última manutenção. Todas estas informações vinculadas ao seu número de série.
+    
+    Diante das definições dos tipos de dados a serem coletados, para que seja sumarizado algumas das perguntas analíticas foi desenvolvido séries temporais em forma de gráficos, como pode ser visto nas figura~\ref{fig:dist1} mostra uma série temporal com valores absolutos dos atendimentos feitos pelo SUS ou outro convênio, bem como se foram executadas.
+}
+
+\begin{figure}[!h]
+    \filcenter
+    \includegraphics[height=0.8\textwidth, width=\linewidth, keepaspectratio]{imagens/dist1.png}
+    \caption{Série temporal de 5 dias com valores absolutos de atendimentos por plano e estado das consultas dos aceleradores lineares.}
+    \label{fig:dist1}
+\end{figure}
+
+    Na Figura~\ref{fig:dist2} mostra a taxa de 71,1\% atendimentos que foram executadas pelo SUS e taxa que não foram executadas, bem como de outros convênios.
+    
+\begin{figure}[!h]
+    \filcenter
+    \includegraphics[height=0.8\textwidth, width=\linewidth, keepaspectratio]{imagens/dist2.png}
+    \caption{Série temporal de 5 dias com taxa de atendimentos por plano e estado das consultas dos aceleradores lineares.}
+    \label{fig:dist2}
+\end{figure}
+
+\clearpage
+\meta{2.d 05/2018 à 12/2019} {
+    Pesquisa de formas para autenticação segura, manutenção da integridade de dados e privacidade.
+}
+
+\realizado{2.d 05/2018 à 12/2019} {
+    \subsection{Segurança do banco de dados da Varian}
+    
+    Os dados gerados pelas máquinas de radioterapia e sistema da Varian, são de extremo valor para a administração interna do hospital e fins científicos. Devido a sua relevância é importante se ter sistemas que garanta a segurança dos dados. Compreendemos como sistema seguro um sistema que possua as seguintes características: integridade, disponibilidade e a confidencialidade dos dados. A fim de garantir a segurança das informações, foram estudadas e desenvolvidas formas de anonimização do banco de dados. Nosso método de anonimização é baseado em três princípios: supressão, generalização e ou perturbação. 
+    
+    \begin{itemize}
+        \item Supressão: é o ato de suprimir dados.
+        \item Generalização: consiste em agrupar indivíduos com características semelhantes.
+        \item Perturbação: gerar ruídos em atributos da relação.
+    \end{itemize}
+
+    Com isso, o método de anonimização do PInSIs é formado pelas seguintes etapas: suprimir atributos que não são necessários para a análise de dados e são considerados sensíveis. Aplicar funções \emph{hash} para gerar perturbações controladas em chaves primárias e secundárias.
+
+    O princípio da supressão é utilizado para remover dados que, ou podem revelar a identidade de pacientes, ou que não são diretamente necessários para o projeto. Um exemplo de dado a ser suprimido é o nome dos pacientes. Esse dado é extremamente sensível, já que a partir dele podemos saber que determinada pessoa se consultou no hospital, e até mesmo descobrir diagnósticos de pacientes, ao cruzar esse dado com outras informações. Como o nome dos pacientes não é relevante para o PInSIS e apresenta um risco a ser mantido, ele é suprimido. Outros exemplos de dados a serem suprimidos são endereços e telefones.
+
+    Com a supressão dos dados, os indivíduos têm suas características generalizadas. Por exemplo, dada uma relação com apenas os atributos de nome e convênio associado (SUS ou particular). Caso os nomes sejam suprimidos os indivíduos são agrupados apenas por convênio. Com isso, todos os pacientes de um mesmo convênio foram generalizados, já que é inviável discerni-los individualmente devido à falta de informações além do convênio. 
+    
+    O método perturbação foi utilizado para gerar modificações controladas em certos atributos das relações. Por exemplo, utilizamos funções hash em chaves primárias e secundárias das relações. Isso faz com que caso os dados sejam violados e se tenha acesso aos dados originais, a chave da relação invadida não seja a mesma do banco de dados utilizado pelo PInSIS, aumentando a segurança do sistema.
+
+    \subsection{Segurança do banco de dados local para armazenamento de cadastro de usuários}
+
+    Além do banco de dados externos, o projeto possui um banco de dados local que possui a função de armazenar o e-mail e credenciais de colaboradores que necessitam acesso ao App, afim de ter acesso a mais funcionalidades.
+    A segurança desse banco foi implementada através de duas técnicas: o \emph{bycript} nas senhas dos usuários e o JWT para funcionar como autenticador de sessão.
+    \emph{Bycript}: é um método de criptografia do tipo hash para senhas. Este método apresenta uma segurança maior em relação a outros métodos em relação ao custo computacional versus segurança. Este é conhecido como hash adaptativo, por hardware mais recentes possuírem esta característica.
+    
+    JWT: T é um padrão que define como transmitir e armazenar objetos JSON de forma compacta e segura entre diferentes aplicações. Os dados nele contidos podem ser validados a qualquer momento pois o token é assinado digitalmente. Ele é formado por três seções: cabeçalho (Header), carga útil (Payload) e Assinatura (Signature). A parte referente a segurança é a de assinatura que  funciona com concatenação dos hashes gerados a partir do cabeçalho e carga útil usando base64UrlEncode, com uma chave secreta ou certificado RSA. Essa assinatura é utilizada para garantir a integridade do token, no caso, se ele foi modificado e se realmente foi gerado por você.
+    Isso previne ataques do tipo man-in-the-middle, onde o atacante poderia interceptar a requisição e modificar seu conteúdo, desta forma personificando o usuário com informações falsas.
+    
+    %\todoD{colocar print com 3 tuplas da tabela de usuários cifrado}
+}
+
+
+\subsection{Das tarefas atribuídas aos membros do projeto}
+
+Cada etapa e tarefas atribuídas aos membros (desenvolvedores) do projeto se encontra em nossa plataforma de controle de versão~\footnote{https://gitlab.c3sl.ufpr.br/pinsis-dev/pinsis-portal/issues}, cada tarefa pode ser encontrada pelo domínio concatenado com número da tarefa (issue). Ex. \textit{repositório/issues/<número>}, o seguinte link $https://gitlab.c3sl.ufpr.br/pinsis-dev/pinsis-portal/issues/53$ abrirá a tarefa \emph{53} do repositório \emph{pinsis-portal}. Todas as respectivas tarefas abaixo representam o código fonte conforme Anexo~\ref{anexo:src_code}.\\
+
+\textit{OBS: o repositório SCRUM foi utilizado para centralizar as tarefas, contudo a ferramenta recebeu uma atualização que permite centralizar através de grupos de repositórios, filtrar a nível de repositórios abaixo do grupo, o que nos permitiu abandonar este repositório. Este repositório estará visível somente neste relatório.}
+
+\subsubsection{Tarefas executadas no portal web versão desktop}
+
+\begin{itemize}
+    \item \textbf{pinsis-portal/issues/18} --- Padronizado ambiente de desenvolvimento com produção, seguindo boas práticas do ambiente de trabalho AngularJS (framework).
+    
+    \item \textbf{pinsis-portal/issues/28} --- Centralizado corpo da página ao cabeçalho.
+    
+    \item \textbf{pinsis-portal/issues/27} - Adicionado salt/bcrypt sobre as senhas dos usuários, deste modo o bando de dados armazena um hash da senha, e não a senha em texto puro.
+    
+    \item \textbf{pinsis-portal/issues/19} --- Criado mais camadas sobre o mapa para apontar os hospitais sendo monitorados.
+    
+    \item \textbf{pinsis-portal/issues/17} --- Consertado bug na tela principal do portal cuja não permitia renderização apropriada da mesma.
+    
+    \item \textbf{pinsis-portal/issues/26} --- Adicionado botão para encerrar sessão do usuário (logout).
+    
+    \item \textbf{pinsis-portal/issues/26} --- Criado sessão do usuário com token para maior segurança.
+    
+    \item \textbf{pinsis-portal/issues/14} --- Consertado caminho para API, parte crítica do sistema foi deixado atrás do serviço https, através do mecanismo de upstream.
+    
+    \item \textbf{pinsis-portal/issues/13} --- Criado página de login na plataforma.
+    
+    \item \textbf{pinsis-portal/issues/3} --- Atualizado todos os pacotes da aplicação web. Para fins de evitar quaisquer vulnerabilidades no sistema.
+    
+    \item \textbf{pinsis-portal/issues/12} --- Gerado novo gráfico que represente as consultas efetuadas pelo SUS.
+    
+    \item \textbf{SCRUM/issues/4} --- Importado gráficos do kibana para dentro da plataforma PInSIs.
+    
+    \item \textbf{SCRUM/issues/50} --- Aplicado técnicas à permitir responsividade dos mapas na plataforma, ou seja, monitores de diferentes resoluções renderizam a página com o layout original, sem distorções ou desalinhamentos dos elementos no portal web.
+       
+    \item \textbf{SCRUM/issues/57} --- Criado botão na interface principal do portal para cesso ao CNES.
+    
+    \item \textbf{SCRUM/issues/11} --- Padronizado layout dos gráficos gerados a partir dos módulos hichart.
+    
+    \item \textbf{SCRUM/issues/43} --- Implementado conexão segura (https) nas comunicação com backend, ou seja, cada requisição feita aos nossos servidores é cifrada.
+\end{itemize}
+
+\subsubsection{Tarefas executadas para aplicação Android}
+
+\begin{itemize}
+    \item \textbf{mobile-cad/issues/3} --- Criado cadastro dos equipamentos hospitalares através da geolocalização.
+    
+    \item \textbf{mobile-cad/issues/2} --- Criado aplicativo Android para o sistema de monitoramento móvel.
+\end{itemize}
+
+\subsubsection{Tarefas executadas no webservice (backend)}
+
+\begin{itemize}
+    \item \textbf{SCRUM/issues/51} --- Criado link com a base de dados do CNES.
+    
+    \item \textbf{webservice/issues/29} --- Criado script para migração do banco de dados para cadastrar equipamentos monitorados.
+    
+    \item \textbf{webservice/issues/10} --- migração no banco de dados para inserção de novos campos (attributos).
+
+    \item \textbf{webservice/issues/41} --- Criado método http GET para obter informações sobre um equipamento parametrizado por número de série.
+    
+    \item \textbf{webservice/issues/47} --- Criado método http GET para obter informações sobre um equipamento parametrizado por identificador do banco de dados.
+    
+    \item \textbf{webservice/issues/14} --- Habilitado recurso compartilhado cruzado (Cross-origin Resource Sharing - CORS) no modo desenvolvimento.
+\end{itemize}
+
+\subsubsection{Tarefas executadas no banco de dados do repositório público}
+
+\begin{itemize}
+    \item \textbf{pinsis-public-data/issues/37} --- Gerado esquema dimensional para armazenar dados do banco da Varian.
+
+    \item \textbf{pinsis-public-data/issues/10} --- Implementado esquema do banco para ser visualizado dentro do CNES.
+
+    \item \textbf{pinsis-public-data/issues/4} --- Implementado validador do número do cartão SUS.
+\end{itemize}
+
+\subsubsection{Tarefas executadas no banco de dados do repositório privado}
+
+\begin{itemize}
+    \item \textbf{SCRUM/issues/42} --- Inserido código (GPL v3.0), licença em cada arquivo de código fonte.
+
+    \item \textbf{pinsis-private-data/issues/9} --- Refatorar mecanismo de extração de dados do sistema Tasy (Hospital Erasto Gaertner).
+
+\end{itemize}

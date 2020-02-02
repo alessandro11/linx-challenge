@@ -1,0 +1,77 @@
+\documentclass[brazil, a4paper, 14pt]{article}
+
+\include{packages}
+\geometry{a4paper,left=3cm,right=2cm,top=3cm,bottom=3cm}
+
+\pagestyle{fancy}
+\fancyhf{}
+\lhead{\includegraphics[width=1cm]{imagens/logo.png}}
+\rhead{Relatório do projeto PInSIs}
+\rfoot{Página \thepage}
+
+\newcommand{\meta}[2]{\noindent\textbf{Meta [#1]: } #2\\}
+\newcommand{\realizado}[2]{\noindent\textbf{Realizado - Meta [#1]: } #2 \\}
+
+\newcommand\todo[1]{\textcolor{red}{Alessandro: #1}}
+\newcommand\todoD[1]{\colorbox{yellow}{Dante: #1}}
+\newcommand\todoB[1]{\colorbox{green}{Bruno: #1}}
+
+
+\renewcommand{\baselinestretch}{1.5}
+
+\newenvironment{boxed_env} {
+    \begin{center}
+        \begin{tabular}{|p{\textwidth}|}
+            \hline\\
+            }
+            { 
+        \\\\\hline
+        \end{tabular} 
+    \end{center}
+}
+\newcounter{anexo}[section]
+\newenvironment{anexo}[1][]{\refstepcounter{anexo}\par\medskip
+   \textbf{\theanexo #1} \rmfamily}{\medskip}
+
+
+\definecolor{folderbg}{RGB}{124,166,198}
+\definecolor{folderborder}{RGB}{110,144,169}
+
+\def\Size{4pt}
+\tikzset{
+  folder/.pic={
+    \filldraw[draw=folderborder,top color=folderbg!50,bottom color=folderbg]
+      (-1.05*\Size,0.2\Size+5pt) rectangle ++(.75*\Size,-0.2\Size-5pt);  
+    \filldraw[draw=folderborder,top color=folderbg!50,bottom color=folderbg]
+      (-1.15*\Size,-\Size) rectangle (1.15*\Size,\Size);
+  }
+}
+
+
+\begin{document}
+    \include{0-capa}
+    \tableofcontents
+    
+    \input{1-titulo_do_projeto}
+    \clearpage
+    
+    \input{2-metas}
+    \clearpage
+    
+    \input{3-objetivos_resultados}
+    \clearpage
+    
+    \input{4-beneficios}
+    \clearpage
+    
+    \input{5-producao-tecnologica}
+    \clearpage
+    
+    \input{6-difilcudades_encontradas}
+    \clearpage
+    
+    \input{7-fotos}
+    \clearpage
+    
+    \input{8-anexos}
+\end{document}
