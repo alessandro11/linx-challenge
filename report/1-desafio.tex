@@ -6,12 +6,10 @@ Estamos enviando pelos links abaixo alguns binários executáveis (ELF
 utilizando as ferramentas que julgar mais adequadas. Como resposta,
 esperamos que você nos diga o que você acha que eles fazem e quais
 foram as ferramentas usadas para isso, bem como uma linha geral do seu
-ra- ciocínio para chegar às conclusões.\\\par
+ra- ciocínio para chegar às conclusões.
 
-
-Binários:
-
-\href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}
+\subsection{Salvando entrada do usuário em /tmp/<USER>}
+Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}
 
 Primeiramente utilizei a ferramenta \emph{objdump}, e posteriormente
 para afirmar a conjectura, o \emph{gdb} (ferramentas Unix).
@@ -21,9 +19,7 @@ caso, o formato Executable and Linkable Format (ELF). Com esta
 ferramenta, extrai (através de engenharia reversa) apenas a seção que
 nos interessa, a main. No qual representa o ponto de entrada de
 execução da primeira instrução do programa. O \emph{gdb} foi utilizado
-para executar o debug, do passo a passo do programa, no qual foi
-transcrito para um programa na Linguagem C, como mostra o fonte em
-\ref{lst:cc9621.c}.
+para executar o debug, do passo a passo dos programas.
 
 Observações (a versão das ferramentas utilizadas nesta análise são):
 \begin{verbatim}
@@ -61,12 +57,82 @@ DYNAMIC SYMBOL TABLE:
 \end{verbatim}
 
 Podemos observar na linha 1 que o programa foi compilado para
-arquitetura x86 de 64bits, logo veremos apenas mnemônicos x86. Das
-linhas 2 à 10 observamos as chamadas a libs dinâmicas.
+arquitetura x86 de 64bits, logo veremos apenas mnemônicos x86. Nas
+linhas 2 à 10 observamos símbolos das libs dinâmicas, isto indica que
+foi lincado com uma lib\*.so que contem esta rotina, a chamada a esta
+rotina não necessariamente faz algo no programa, o \emph(gdb) nos dirá se
+fazem ou não.
 
 Para obter uma visão transversal do que o programa faz, foi feito a
 desmontagem do programa, utilizando o comando:
 
 \emph{objdump -d --no-show-raw-insn cc9621}
 
-\lstinputlisting[caption = {Escreve em /tmp/USER},label={prog:cc9621}]{cc9621.as}
+\lstinputlisting[caption = {Escreve entrada do usuário em ``/tmp/USER''.},label={prog:cc9621}]{cc9621.as}
+
+No assembly~\ref{prog:cc9621} é mostrado o \emph{main} do programa, as
+outras seções foram truncadas, assim focamos apenas no núcleo de que o
+programa faz (não irei abordar cada instrução, apenas as
+relevantes). Também é apresentado como comentários em inglês mas
+detalhes das instruções relevantes.
+
+A primeira instrução relevante é 4007\{48,52\}, após a linha 15. No qual
+armazena a string ``/tmp/'' em uma variável na pilha. A instrução
+400770 preenche com zeros um buffer de tamanho 24, indicado pela
+constante armazenado em \emph{\%rcx}, no qual controle quantas vezes será
+repetido a instrução \emph{stos}. Este buffer será usado pelo
+\emph(scanf). Na instrução 400778 é obtido o usuário que está
+executando o programa, em meu caso o usuário é ``m3cool''. A 400798
+concatena a string ``/tmp/'' com ``m3cool''. Na 4007b1 é feito a
+chamada ao \emph{scanf} para obter a entrada do usuário, uma string
+qualquer. A 4007c5 abre o arquivo no caminho ``/tmp/m3cool''. Na
+4007ef (\emph(fputs) escreve a string obtida pelo \emph{scanf} no
+arquivo aberto. Na 4007fe fecha o arquivo e o programa é encerrado.
+
+\subsection{Conway's Game of Life}
+Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/d3ea79}{d3ea79}
+
+Este programa gera a saída do jogo Conway's Game of Life,
+escrevendo-o no arquivo ``/tmp/<USER>''. O
+link~\footnote{\href{http://en.wikipedia.org/wiki/Conway\%27s\_Game\_of\_Life}{http://en.wikipedia.org/wiki/Conway\%27s\_Game\_of\_Life}}
+para a Wiki do jogo também é escrito no arquivo. A saída gerada na
+execução esta no repositório em
+\href{https://github.com/alessandro11/desafio-1/blob/master/m3cool}{/tmp/m3cool}.
+
+A desmontagem parcial do binário pode ser observado no
+fontes de cada rotina abaixo:
+
+\lstinputlisting[caption = {Remove e recria o arquivo ``/tmp/<USER>''
+com o Conway's Game of Life},label={prog:d3ea79-main}]{d3ea79-main.as}
+
+No fonte~\ref{prog:d3ea79-main} \emph{main} (inicio de execução)
+podemos observar as respectivas chamadas: \emph{clear}, \emph{welcome}
+e \emph{play}. Iremos abordar cada uma das rotinas.\\
+
+\par\textbf{\emph{clear}}:
+\lstinputlisting[caption = {Remove arquivo
+ ``/tmp/<USER>''},label={prog:d3ea79-clear}]{d3ea79-clear.as}
+
+A instrução 400967 atribui ao registrador RAX
+a string ``/tmp/''. Na instrução 400992 é atribuído o ponteiro para a
+string (constante) ``USER'', no qual é passado como parâmetro para
+\emph{getenv}. Este retorna o valor da variável de ambiente <USER>.
+A instrução 4009bc concatena a string que estava em RAX e valor da
+variável de ambiente. No meu caso, resultando na string
+``/tmp/m3cool''. A 4009cb remove o arquivo ``/tmp/m3cool''.\\
+
+\par\textbf{\emph{welcome}}:
+\lstinputlisting[caption = {Escreve cabeçalho no arquivo
+ ``/tmp/<USER>''},label={prog:d3ea79-welcome}]{d3ea79-welcome.as}
+
+No fonte~\ref{prog:d3ea79-welcome} da instrução 400a00 à 400a55
+concatena strings como em~\ref{prog:d3ea79-clear}. Instrução 400a69
+abre o arquivo (``/tmp/m3cool''). Na instrução 400aa7 carrega ponteiro
+para string (constante) ``Welcome to the Game of Life.\textbackslash n'' a
+subsequente escreve no arquivo esta string. A instrução 400ab8 carrega a
+string (constante) ``http://en.wikipedia.org/wiki/Conway\%27s\_Game\_of\_Life'' e
+subsequente escreve no arquivo e então fecha-o.\\
+
+\par\textbf{\emph{play}}, \textbf{\emph{print}},
+\textbf{\emph{evolve}} são rotinas responsáveis por gerar o jogo.
+
