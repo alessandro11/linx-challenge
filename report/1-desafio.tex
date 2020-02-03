@@ -99,7 +99,7 @@ para a Wiki do jogo também é escrito no arquivo. A saída gerada na
 execução esta no repositório em
 \href{https://github.com/alessandro11/desafio-1/blob/master/m3cool}{/tmp/m3cool}.
 
-A desmontagem parcial do binário pode ser observado no
+A desmontagem parcial do binário pode ser observado nos
 fontes de cada rotina abaixo:
 
 \lstinputlisting[caption = {Remove e recria o arquivo ``/tmp/<USER>''
@@ -136,3 +136,34 @@ subsequente escreve no arquivo e então fecha-o.\\
 \par\textbf{\emph{play}}, \textbf{\emph{print}},
 \textbf{\emph{evolve}} são rotinas responsáveis por gerar o jogo.
 
+
+\subsection{Fork()}
+Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/da87fa}{da87fa}
+
+Este programa fica em um laço infinito, ou até receber um SIGHUP,
+executando \emph{fork()} dez vezes. Na décima, é executado um
+\emph{sleep} de dez segundos, e torna a executar outros dez
+forks. Como é mapeado SIGCHLD para SIGHUP, o processo filho inicia e
+encerra.
+
+Analisando a desmontagem do binário no Assembly~\ref{prog:da87fa}:
+
+\lstinputlisting[caption = {Fork do processo},label={prog:da87fa}]{da87fa.as}
+
+As instruções 4006\{16, 1b, 20\} mapeiam o sinal de SIGCHLD para
+SIGHUP, o que acarreta na finalização do processo, assim que o processo
+filho inicia. Da instrução 40062a à 400653 ocorre o laço dos
+forks. Nas instruções 40065\{0, 3\} controla quantos forks serão
+feitos enquanto o registrador EBX não atinge dez, um if. Quando o
+registrador EBX atinge dez, então é executado um \emph{sleep} de dez
+segundos e volta para o inicio do laço.
+
+O interessante para sair do laço, finalizando o processo, nunca
+ocorrerá. Conforme as instruções 40063f executa uma comparação
+\emph{test}, no qual somente será igual se o registrador EAX for zero,
+porém a instrução lê o pid do processo filho que foi salvo na pilha,
+atribui este valor ao registrador EAX e executa o \emph{test}, logo
+não é atribuído pid zero para processos, por definição do SO. Então a
+instrução 400641 sempre fará o salto para a verificação se já executou
+os dez forks antes do \emph{sleep}, e nunca executará 400648,
+finalizar o processo. 
