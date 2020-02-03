@@ -1,9 +1,13 @@
 000000000040060d <main>:
-...
+  40060d:       push   %rbp
+  40060e:       mov    %rsp,%rbp
+  400611:       push   %rbx
+  400612:       sub    $0x38,%rsp
+  
   400616:       mov    $0x1,%esi
   40061b:       mov    $0x11,%edi
   400620:       callq  4004d0 <signal@plt>
-...
+  400625:       mov    $0x0,%ebx
   40062a:       jmp    400650 <main+0x43>
   40062c:       callq  400510 <fork@plt>
   400631:       movslq %ebx,%rdx
