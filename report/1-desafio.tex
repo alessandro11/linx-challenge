@@ -6,22 +6,11 @@ Estamos enviando pelos links abaixo alguns binários executáveis (ELF
 utilizando as ferramentas que julgar mais adequadas. Como resposta,
 esperamos que você nos diga o que você acha que eles fazem e quais
 foram as ferramentas usadas para isso, bem como uma linha geral do seu
-ra- ciocínio para chegar às conclusões.
+raciocínio para chegar às conclusões.\\
 
-\subsection{Salvando entrada do usuário em /tmp/<USER>}
-Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}
+\par Nesta seção, para encontrar as soluções dos problemas propostos, foi
+utilizado primordialmente as seguintes ferramentas:
 
-Primeiramente utilizei a ferramenta \emph{objdump}, e posteriormente
-para afirmar a conjectura, o \emph{gdb} (ferramentas Unix).
-\emph{Objdump} oferece algumas análises do cabeçalho e instruções,
-mnemônicos da arquitetura em que foi compilado o executável, em nosso
-caso, o formato Executable and Linkable Format (ELF). Com esta
-ferramenta, extrai (através de engenharia reversa) apenas a seção que
-nos interessa, a main. No qual representa o ponto de entrada de
-execução da primeira instrução do programa. O \emph{gdb} foi utilizado
-para executar o debug, do passo a passo dos programas.
-
-Observações (a versão das ferramentas utilizadas nesta análise são):
 \begin{verbatim}
 GNU objdump (GNU Binutils) 2.33.1
 Copyright (C) 2019 Free Software Foundation, Inc.
@@ -29,6 +18,24 @@ This program is free software; you may redistribute it under the terms of
 the GNU General Public License version 3 or (at your option) any later version.
 This program has absolutely no warranty.
 \end{verbatim}
+
+Esta ferramenta foi utilizada para obter o desmontagem (disassembly)
+dos binários, bem como fazer uma analise das seções e símbolos dos
+binários. Desta forma, possibilitando uma leitura do código montado
+(assembly).
+
+Os seguintes comandos foram utilizados para analise das seções e ou
+cabeçalhos:
+
+Para analises de cabeçalhos e seções\\
+$$objdump \ \ -x \ \ <nome\_do\_arquivo>$$
+$$objdump \ \ -T \ \ <nome\_do\_arquivo>$$
+$$objdump \ \ -f \ \ <nome\_do\_arquivo>$$
+
+Para disassembly:\\
+$$objdump \ \ -S \ \ <nome\_do\_arquivo>$$
+$$objdump \ \ -D \ \ <nome\_do\_arquivo>$$
+$$objdump \ \ -d \ \ <nome\_do\_arquivo>$$
 
 \begin{verbatim}
 GNU gdb (GDB) 8.3.1
@@ -38,48 +45,40 @@ This is free software: you are free to change and redistribute it.
 There is NO WARRANTY, to the extent permitted by law.
 \end{verbatim}
 
-Abaixo mostra a tabela dinâmica de símbolos obtida com o comando:\\
-\emph{objdump -T cc9621}
+Esta possibilitou a confirmação de qualquer conjectura obtida pela
+ferramenta anterior, executando o assembly passo a passo.
 
-\begin{verbatim}
- 1: cc9621:     file format elf64-x86-64
+Sua execução com os seguintes parâmetros:
+$$gdb \ \ -tui \ \ <programa>$$
 
-DYNAMIC SYMBOL TABLE:
- 2: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.2.5 getenv
- 3: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.2.5 fclose
- 4: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.4   __stack_chk_fail
- 5: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.2.5 fputs
- 6: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.2.5 __libc_start_main
- 7: 0000000000000000  w   D  *UND*	0000000000000000              __gmon_start__
- 8: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.2.5 fopen
- 9: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.7   __isoc99_scanf
-10: 0000000000000000      DF *UND*	0000000000000000  GLIBC_2.2.5 strcat
-\end{verbatim}
+Os binários e seus respectivos disassembly, um pequeno leia-me podem
+ser encontrados no repositório:\\
 
-Podemos observar na linha 1 que o programa foi compilado para
-arquitetura x86 de 64bits, logo veremos apenas mnemônicos x86. Nas
-linhas 2 à 10 observamos símbolos das libs dinâmicas, isto indica que
-foi lincado com uma lib\*.so que contem esta rotina, a chamada a esta
-rotina não necessariamente faz algo no programa, o \emph(gdb) nos dirá se
-fazem ou não.
+\href{https://github.com/alessandro11/desafio-1}{https://github.com/alessandro11/desafio-1}
 
-Para obter uma visão transversal do que o programa faz, foi feito a
-desmontagem do programa, utilizando o comando:
 
-\emph{objdump -d --no-show-raw-insn cc9621}
+\subsection{Salvando entrada do usuário em /tmp/<USER>}
+Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}
+Disassembly:
+\href{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}
+
+Este programa abre um arquivo no diretório ``/tmp/'', sendo nome do
+arquivo o usuário obtido do ambiente de execução do programa. Espera a
+entrada do usuário, quando finalizado com um \emph{Enter}, o
+dado entrado é salvo no arquivo ``/tmp/USER''.
 
 \lstinputlisting[caption = {Escreve entrada do usuário em ``/tmp/USER''.},label={prog:cc9621}]{cc9621.as}
 
-No assembly~\ref{prog:cc9621} é mostrado o \emph{main} do programa, as
+No Assembly~\ref{prog:cc9621} é mostrado o \emph{main} do programa, as
 outras seções foram truncadas, assim focamos apenas no núcleo de que o
 programa faz (não irei abordar cada instrução, apenas as
-relevantes). Também é apresentado como comentários em inglês mas
+relevantes). Também é apresentado como comentários em inglês mais
 detalhes das instruções relevantes.
 
 A primeira instrução relevante é 4007\{48,52\}, após a linha 15. No qual
 armazena a string ``/tmp/'' em uma variável na pilha. A instrução
 400770 preenche com zeros um buffer de tamanho 24, indicado pela
-constante armazenado em \emph{\%rcx}, no qual controle quantas vezes será
+constante armazenado em \emph{RCX}, no qual controla quantas vezes será
 repetido a instrução \emph{stos}. Este buffer será usado pelo
 \emph(scanf). Na instrução 400778 é obtido o usuário que está
 executando o programa, em meu caso o usuário é ``m3cool''. A 400798
@@ -89,35 +88,35 @@ qualquer. A 4007c5 abre o arquivo no caminho ``/tmp/m3cool''. Na
 4007ef (\emph(fputs) escreve a string obtida pelo \emph{scanf} no
 arquivo aberto. Na 4007fe fecha o arquivo e o programa é encerrado.
 
+
 \subsection{Conway's Game of Life}
 Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/d3ea79}{d3ea79}
+Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
 
 Este programa gera a saída do jogo Conway's Game of Life,
 escrevendo-o no arquivo ``/tmp/<USER>''. O
 link~\footnote{\href{http://en.wikipedia.org/wiki/Conway\%27s\_Game\_of\_Life}{http://en.wikipedia.org/wiki/Conway\%27s\_Game\_of\_Life}}
 para a Wiki do jogo também é escrito no arquivo. A saída gerada na
-execução esta no repositório em
+execução deste programa está no repositório em
 \href{https://github.com/alessandro11/desafio-1/blob/master/m3cool}{/tmp/m3cool}.
 
-A desmontagem parcial do binário pode ser observado nos
-fontes de cada rotina abaixo:
+O disassembly parcial do binário pode ser observado nas rotinas abaixo:
 
 \lstinputlisting[caption = {Remove e recria o arquivo ``/tmp/<USER>''
 com o Conway's Game of Life},label={prog:d3ea79-main}]{d3ea79-main.as}
 
-No fonte~\ref{prog:d3ea79-main} \emph{main} (inicio de execução)
-podemos observar as respectivas chamadas: \emph{clear}, \emph{welcome}
-e \emph{play}. Iremos abordar cada uma das rotinas.\\
+No Assembly~\ref{prog:d3ea79-main} observamos as respectivas chamadas:
+\emph{clear}, \emph{welcome} \emph{play}. Iremos abordar cada uma das rotinas.\\
 
 \par\textbf{\emph{clear}}:
 \lstinputlisting[caption = {Remove arquivo
  ``/tmp/<USER>''},label={prog:d3ea79-clear}]{d3ea79-clear.as}
 
-A instrução 400967 atribui ao registrador RAX
+A instrução 400967 atribui ao registrador \emph{RAX}
 a string ``/tmp/''. Na instrução 400992 é atribuído o ponteiro para a
 string (constante) ``USER'', no qual é passado como parâmetro para
 \emph{getenv}. Este retorna o valor da variável de ambiente <USER>.
-A instrução 4009bc concatena a string que estava em RAX e valor da
+A instrução 4009bc concatena a string que estava em \emph{RAX} e valor da
 variável de ambiente. No meu caso, resultando na string
 ``/tmp/m3cool''. A 4009cb remove o arquivo ``/tmp/m3cool''.\\
 
@@ -125,7 +124,7 @@ variável de ambiente. No meu caso, resultando na string
 \lstinputlisting[caption = {Escreve cabeçalho no arquivo
  ``/tmp/<USER>''},label={prog:d3ea79-welcome}]{d3ea79-welcome.as}
 
-No fonte~\ref{prog:d3ea79-welcome} da instrução 400a00 à 400a55
+O Assembly~\ref{prog:d3ea79-welcome}, na instrução 400a00 à 400a55
 concatena strings como em~\ref{prog:d3ea79-clear}. Instrução 400a69
 abre o arquivo (``/tmp/m3cool''). Na instrução 400aa7 carrega ponteiro
 para string (constante) ``Welcome to the Game of Life.\textbackslash n'' a
@@ -139,6 +138,8 @@ subsequente escreve no arquivo e então fecha-o.\\
 
 \subsection{Fork()}
 Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/da87fa}{da87fa}
+Disassembly:
+\href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
 
 Este programa fica em um laço infinito, ou até receber um SIGHUP,
 executando \emph{fork()} dez vezes. Na décima, é executado um
@@ -154,16 +155,26 @@ As instruções 4006\{16, 1b, 20\} mapeiam o sinal de SIGCHLD para
 SIGHUP, o que acarreta na finalização do processo, assim que o processo
 filho inicia. Da instrução 40062a à 400653 ocorre o laço dos
 forks. Nas instruções 40065\{0, 3\} controla quantos forks serão
-feitos enquanto o registrador EBX não atinge dez, um if. Quando o
-registrador EBX atinge dez, então é executado um \emph{sleep} de dez
+feitos enquanto o registrador \emph{EBX} não atinge dez, um if. Quando o
+registrador \emph{EBX} atinge dez, então é executado um \emph{sleep} de dez
 segundos e volta para o inicio do laço.
 
 O interessante para sair do laço, finalizando o processo, nunca
 ocorrerá. Conforme as instruções 40063f executa uma comparação
-\emph{test}, no qual somente será igual se o registrador EAX for zero,
+\emph{test}, no qual somente será igual se o registrador \emph{EAX} for zero,
 porém a instrução lê o pid do processo filho que foi salvo na pilha,
-atribui este valor ao registrador EAX e executa o \emph{test}, logo
+atribui este valor ao registrador \emph{EAX} e executa o \emph{test}, logo
 não é atribuído pid zero para processos, por definição do SO. Então a
 instrução 400641 sempre fará o salto para a verificação se já executou
 os dez forks antes do \emph{sleep}, e nunca executará 400648,
-finalizar o processo. 
+finalizar processo.
+
+
+\subsection{Multi Thread escutando na porta 8011}
+\noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/ddb1c9}{ddb1c9}\\
+Disassembly:
+\href{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}\\
+
+\par Este programa abre três threads para atender requisições http,
+cujo programa escuta em localhost na porta 8011. Ao fazer uma
+requisição http ($http://localhost:8011$) apenas o caractere '!' é retornado.
