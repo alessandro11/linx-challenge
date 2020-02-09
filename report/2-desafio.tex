@@ -1,10 +1,18 @@
 \section{DESAFIO - Parte 2}
 
-O ambiente deve ser todo configurado através de gerenciador de configuração, o que deverá ser entregue é um repositório git contendo os arquivos de configuração que serão aplicados em uma máquina virtual "zerada". Caso necessário descrever como executar o processo de aplicação da configuração na máquina virtual. Ao final da tarefa e execução do processo, deveremos ter um ambiente funcional;
+O ambiente deve ser todo configurado através de gerenciador de
+configuração, o que deverá ser entregue é um repositório git contendo
+os arquivos de configuração que serão aplicados em uma máquina virtual
+"zerada". Caso necessário descrever como executar o processo de
+aplicação da configuração na máquina virtual. Ao final da tarefa e
+execução do processo, deveremos ter um ambiente funcional; 
 
-- É recomendado que o repositório git seja entregue com commits parciais, mostrando a evolução de seu código e pensamento. Caso prefira nos informe um url de git público ou então compacte todos os arquivos em um .tar.gz mantendo a pasta .git em conjunto;
+É recomendado que o repositório git seja entregue com commits
+parciais, mostrando a evolução de seu código e pensamento. Caso
+prefira nos informe um url de git público ou então compacte todos os
+arquivos em um .tar.gz mantendo a pasta .git em conjunto; 
 
-- No ambiente deverá estar rodando uma aplicação node.js de exemplo,
+No ambiente deverá estar rodando uma aplicação node.js de exemplo,
 conforme código abaixo. A versão do node.js deverá ser a última versão
 LTS disponível em: https://nodejs.org/en/download/. A aplicação node
 abaixo possui a dependência da biblioteca express. Garanta que seu
@@ -14,14 +22,277 @@ background. De uma forma dinâmica garanta que seja criado uma
 instância node para cada processador existente na máquina ( a máquina
 poderá ter de 1 a 32 processadores );
 
-Construa dentro de sua automação um processo de deploy e rollback seguro e rápido da aplicação node. O deploy e rollback deverá garantir a instalação das dependências node novas (caso sejam adicionadas ou alteradas a versão de algum dependência por exemplo), deverá salvar a versão antiga para possível rollback e reiniciar todos processos node sem afetar a disponibilidade global da aplicação na máquina;
+Construa dentro de sua automação um processo de deploy e rollback
+seguro e rápido da aplicação node. O deploy e rollback deverá garantir
+a instalação das dependências node novas (caso sejam adicionadas ou
+alteradas a versão de algum dependência por exemplo), deverá salvar a
+versão antiga para possível rollback e reiniciar todos processos node
+sem afetar a disponibilidade global da aplicação na máquina; 
 
-- A aplicação Node deverá ser acessado através de um Servidor Web configurado como Proxy Reverso e que deverá intermediar as conexões HTTP e HTTPS com os clientes e processos node. Um algoritmo de balanceamento deve ser configurado para distribuir entre os N processos node a carga recebida;
+A aplicação Node deverá ser acessado através de um Servidor Web
+configurado como Proxy Reverso e que deverá intermediar as conexões
+HTTP e HTTPS com os clientes e processos node. Um algoritmo de
+balanceamento deve ser configurado para distribuir entre os N
+processos node a carga recebida; 
 
-- A fim de garantir a disponibilidade do serviço, deverá estar funcional uma monitoração do processo Node e Web para caso de falha, o mesmo deve reiniciar ou subir novamente os serviços em caso de anomalia;
+A fim de garantir a disponibilidade do serviço, deverá estar funcional
+uma monitoração do processo Node e Web para caso de falha, o mesmo
+deve reiniciar ou subir novamente os serviços em caso de anomalia; 
 
-- Desenvolva um pequeno script que rode um teste de carga e demostre qual o Throughput máximo que seu servidor consegue atingir;
+Desenvolva um pequeno script que rode um teste de carga e demostre
+qual o Throughput máximo que seu servidor consegue atingir; 
 
-- Desenvolva um script que parseie o log de acesso do servidor Web e deverá rodar diariamente e enviar por e-mail um simples relatório, com a frequência das requisições e o respectivo código de resposta (ex:5 /index.html 200);
+Desenvolva um script que parseie o log de acesso do servidor Web e
+deverá rodar diariamente e enviar por e-mail um simples relatório, com
+a frequência das requisições e o respectivo código de resposta (ex:5
+/index.html 200); 
 
-- Por fim; rode o seu parser de log para os logs gerados pelo teste de carga, garantindo que seu script terá performance mesmo em casos de logs com milhares de acessos;
+Por fim; rode o seu parser de log para os logs gerados pelo teste de
+carga, garantindo que seu script terá performance mesmo em casos de
+logs com milhares de acessos;
+
+Nesta seção irei abordar em linhas gerais a ideia da minha
+implementação, portanto não irei me deter em explicar o código, de
+qualquer forma se houver alguma dúvida estou a disposição para
+esclarecer qualquer ponto.
+
+
+\subsection{Introdução}
+Pós a leitura do enunciado do desafio, comecei a selecionar quais
+tecnologias iria utilizar, com exceção da NodeJS já pré
+estabelecida. Dentro dos meus critérios para a seleção das tecnologias
+são: performance, atividade de correções de possíveis bugs, bem como
+novas funcionalidades, ou seja, desenvolvimento ativo da tecnologia.
+Como serviço http selecionei Nginx, sua característica de abrir
+processo leve (threads) ao invés de processos já o torna
+atraente. Como referência posso
+citar~\footnote{\href{https://www.digitalocean.com/community/tutorials/apache-vs-nginx-practical-considerations}{https://www.digitalocean.com/community/tutorials/apache-vs-nginx-practical-considerations}}
+com uma opinião, com tudo há diversos sites fazendo avaliações dos
+prós e contras de Apache e Nginx. Os outros quesitos também foram
+atendidos.
+
+Ferramentas de automação, há diversas no mercado, como \emph{Chef, Puppet,
+Ansible, Saltstack} etc. Selecionei a \emph{\textbf{Ansible}} devido a Linx Impulse
+mencionar um diferencial na posição em aberto para Cloud Engineering.
+
+Quanto aos scripts utilizei Bash e Python, no qual é nativo e
+amplamente utilizado por muitas distribuições Linux, muito comum em
+infraestrutura de nuvem.
+
+Para simular meu ambiente, gerei três máquinas virtuais utilizando a
+Virtual Machine Monitor (VMM) Qemu e libvirt. Criei uma rede separa e
+fazendo NAT pelo meu desktop para chegar a Internet. Gerei uma imagem
+de Ubuntu 18.04 a partir de um debootstrap, e apliquei as mudanças em
+cima de alguns ``snapshoots copy on write''.
+
+Serviços de inicialização da aplicação NodeJS foi utilizado o sistema
+nativo, \emph{Systemd}. Gerente de tarefas para os scripts
+\emph{crontab}.
+
+
+\subsection{Do ambiente utilizado}
+Em minha mini infra estrutura utilizei distribuições ArchLinux (pessoal), e
+Ubuntu como servidor, segue versão:
+
+\begin{verbatim}
+Distributor ID:	Ubuntu
+Description:	Ubuntu 18.04.4 LTS
+Release:	18.04
+Codename:	bionic
+
+Linux webserver 4.15.0-76-generic #86-Ubuntu SMP
+Fri Jan 17 17:24:28 UTC 2020 x86_64 x86_64 x86_64 GNU/Linux
+
+VM's com 4 VCPU's e 4 GB de RAM cada.
+
+ArchLinux
+Ansible
+ansible-playbook 2.9.4
+python version = 3.8.1
+\end{verbatim}
+
+
+\subsection{Execução do gerenciador de configuração; \emph{Ansible}}
+$$ansible-playbook\ \ \ playbook.yml\ \ \ -l\ \ <server>$$
+
+Ao final da execução deste playbook você terá um ambiente funcional
+rodando a aplicação NodeJS de exemplo.
+
+  % \item Criação de um usuário sem privilégios. Com exceção
+
+  %   Os únicos dois
+  %   exclusivos comandos que este usuário poderá escalar privilégios (root)
+  %   são: iniciar e recarregar a aplicação node~\footnote{Isto se faz
+  %     necessário, pois foi implementado com mecanismo de
+  %     clusterização (Workers), o Master roda como root os demais sem
+  %     privilégios através do \emph{systemd}.}.
+
+    % recarregar a aplicação node~\footnote{Isto se faz 
+    %   necessário, pois foi implementado com mecanismo de
+    %   clusterização (Workers), o Master roda como root os demais sem
+    %   privilégios através do \emph{systemd}.}.
+
+Os passos de cada play é:
+\begin{enumerate}
+     \item Instalar os pacotes requeridos. A lista destes estão
+     definida na variável do ambiente \emph{Ansible}.
+     \item Criação de um usuário sem privilégios. Com exceção: iniciar e
+     recarregar a aplicação node~\footnote{Isto se faz 
+     necessário, devido a implementação através de clusterização.}
+    \item Cadastrar a chave pública (\emph{ssh}) da origem do comando
+      para o servidor, possibilitando mais segurança no ambiente de deploy.
+    \item Resiliência do serviço, através do \emph{systemd}. No qual
+        uma vez que processo(s) da aplicação morre, ele automaticamente
+        o reinicia, e mais script de monitoramento para tal. \label{i:systemd}
+    \item Nginx com Proxy Reverso; balanceando a carga com
+      \emph{round-robin} entre os possíveis 32 cores. Com um node
+      worker para core. \label{i:nginx}
+    \item Script que todos os dias à meia noite faz o parse do access
+      log e gera uma tabela agregada por url, (recurso), código e suas
+      respectivas frequências de acesso.
+    \item Instalação do ambiente node virtual Node Version Manager
+      (NVM).
+    \item Instalação do
+      \href{https://github.com/alessandro11/desafio-2.git}{repositório}
+      da aplicação node.
+    \item Fácil e seguro mecanismo de \emph{deploy} e \emph{rollback}
+      através do shipit.
+\end{enumerate}
+
+
+\subsubsection{Disponibilidade da aplicação}
+O mecanismo nativo do systemd~\ref{i:systemd} permite a monitoração dos
+processos, e em caso de falha e ou não resposta, os processos com falha  recebem o sinal para
+encerrar e iniciar novamente, e ainda em caso de falha do envio d
+sinal ele permanece em um intervalo de 5 sec (configurável) tentar novamente. Um pequeno engano no
+comentário do código (commit: 134c9d) fez a carga do servidor subir, pois
+o systemd incessantemente inciava o processo da aplicação node, o que
+resultava em o daemon morrer e systemd tentar subir em um laço.
+
+E ainda bash script minuto a minuto verificando se o processo está rodando, e se
+uma rota está retornando o código OK (200), se um dos caso não for
+satisfeito o serviço é reiniciado.
+
+O link para o script pode ser encontrado em:\\
+\href{https://github.com/alessandro11/desafio-2/blob/master/scripts/health\_check.sh}{https://github.com/alessandro11/desafio-2/blob/master/scripts/health\_check.sh}
+
+
+\subsubsection{Balanceamento de carga}
+Além do mecanismo de balanceamento do item~\ref{i:nginx}, foi
+implementado o serviço (daemon) utilizando cluster de node workers, em
+outras palavras o daemon
+(\href{https://github.com/alessandro11/desafio-2/blob/master/shipitfile.js}{server.js}
+irá executar um processo a mais do que o número de cores do servidor,
+este é o Master, quem delega para os demais workers. O Master também
+possui mecanismo de balanceamento de carga, com tudo foi implementado
+load balance com o Nginx. O motivo é uso de memória, Nginx é mais
+eficiente e utiliza menos memória. As conexões https estão
+configuradas, porém é preciso gerar o certificado e retirar o
+comentário apontando para o certificado obtido de acordo com o
+domínio. Esta configuração também pode ser encontrado no arquivo de
+configuração abaixo.
+
+A configuração do Upstream pode ser encontrado no seguinte link:\\
+\href{https://github.com/alessandro11/ansible-desafio-2/blob/master/setup\_desafio-2/webserver.com}{https://github.com/alessandro11/ansible-desafio-2/blob/master/setup\_desafio-2/webserver.com}
+
+
+\subsubsection{Throughput máximo}
+Um
+\href{https://github.com/alessandro11/desafio-2/blob/master/scripts/workload.sh}{script}
+em bash executa requisições em paralelo ao servidor http. Como não há
+carga no servidor pelo programa de exemplo, no qual apenas retorna
+'Hello World!' código OK (200) (não gera carga). Então para gerá-la
+artificialmente, gerei outras três rotas que aplica carga simbólica
+no servidor. Cuja carga, é gerar contadores aleatórios, esperar por
+alguns milissegundos. Podemos observar o servidor como idle entre um
+sleep e outro como se estivesse esperando resposta de outro componente
+do sistema, deste modo pude contrapor a primeira carga. Esta, resultou
+em possíveis centenas de requisições simultâneas o que é irreal. Com a
+carga artificial cheguei em média atingi 24 conexões simultâneas, com
+apenas dois workers (duas VCPUS),
+
+Os resultados das análises e logs estão no repositório em:\\
+\href{https://github.com/alessandro11/desafio-2/tree/master/scripts}{https://github.com/alessandro11/desafio-2/tree/master/scripts}.
+
+
+\subsubsection{Deploy e Rollback}
+Primeiramente você deve editar o arquivo
+\href{https://github.com/alessandro11/desafio-2/blob/master/shipitfile.js}{shipitfile.js}
+localizado na raiz do repositório, alterando as seguintes variáveis:
+
+Home do usuário onde foi clonado o repositório.\\
+
+\color{red}
+Aponte para um caminho que não seja a raiz do repositório,
+raiz da Home do usuário por exemplo. Este cuidado deve ser tomado se
+for setado a variável para limpar o diretório.
+
+\color{black}
+\begin{verbatim}
+...
+   default: {
+       deployTo: /home/webserver/
+       ...
+  }
+...
+\end{verbatim}
+
+Aponte para o branch ou tag que deseja fazer deploy,
+\begin{verbatim}
+...
+banch: 'master',
+ou
+tag: 'rc-0.0.1',
+...
+\end{verbatim}
+
+Usuário e domínio/IP do servidor.
+\begin{verbatim}
+...
+    production: {
+        servers: 'webserver@webserver.com',
+    },
+...
+\end{verbatim}
+
+Aponte para o caminho da \$HOME onde a aplicação está. Este é o
+trigger que é gerado após o deploy com sucesso, então possíveis novos
+pacotes serão instalados, bem como o serviço irá recarregar os workers
+com as novas mudanças.
+\begin{verbatim}
+    await shipit.remote('cd current; \
+         /home/webserver/.nvm/nvm-exec npm install; \
+         sudo /bin/systemctl reload webserver.service')
+\end{verbatim}
+
+\textcolor{red}{Os serviços foram gerados para procurar a home do
+  usuário em /home, portanto não altere o prefixo.}
+
+\subsubsection{Deploy}
+Execute o comando abaixo a partir do diretório do
+\emph{shipitfile.js}:
+
+$$npx\ \ shipit\ \ production\ \ deploy$$
+
+A chave ssh será usado para acessar o servidor e executar o
+deploy. Será extraído o último commit da branch ou tag apontado pelo
+shipitfile e clonado para o diretório
+\textit{<\textit{deployTo:}>/releases} no servidor remoto. Você
+encontrará os diretórios com o último commit do deploy, eles são um
+timestamp. Um link simbólico chamado \textit{<deployTo:>/current} aponta para o
+diretório do deploy atual em
+\textit{<deployTo:>/releases/20200208160632>} e.g.
+
+
+\subsubsection{Rollback}
+Execute o comando abaixo a partir do diretório do
+\emph{shipitfile.js}:
+
+$$npx\ \ shipit\ \ production\ \ rollback$$
+
+Tudo que ocorrerá é apontar o link simbólico para o deploy anterior, e
+recarregar os nodes workers, recarregando a aplicação. Está pré
+configurado para armazenar os últimos dez deploys, isto pode ser
+configurado no shipitfile.
+
+
