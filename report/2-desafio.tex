@@ -1,6 +1,6 @@
 \section{DESAFIO - Parte 2}
 
-O ambiente deve ser todo configurado através de gerenciador de
+``O ambiente deve ser todo configurado através de gerenciador de
 configuração, o que deverá ser entregue é um repositório git contendo
 os arquivos de configuração que serão aplicados em uma máquina virtual
 "zerada". Caso necessário descrever como executar o processo de
@@ -54,7 +54,7 @@ logs com milhares de acessos;
 Nesta seção irei abordar em linhas gerais a ideia da minha
 implementação, portanto não irei me deter em explicar o código, de
 qualquer forma se houver alguma dúvida estou a disposição para
-esclarecer qualquer ponto.
+esclarecer qualquer ponto.''
 
 
 \subsection{Introdução}
@@ -95,7 +95,7 @@ sistema operacional para, logo o confiamos, portanto é o mais robusto e
 ainda nativo. Como gerente de tarefas para os scripts \emph{crontab}.
 
 
-\subsection{Do ambiente utilizado}
+\subsection{Ambiente utilizado}
 Em minha mini infra estrutura utilizei distribuições ArchLinux (pessoal), e
 Ubuntu como servidor, segue versão:
 
@@ -118,26 +118,62 @@ python version = 3.8.1
 
 
 \subsection{Execução do gerenciador de configuração; \emph{Ansible}} \label{sec:playbook}
-\todo{escrever variáveis}
+Primeiramente é necessário preencher as variáveis do ambiente do
+Ansible: \emph{create\_user, copy\_local\_key, domain,
+  release\_version}. Para envio de e-mail: \emph{email\_crontab,
+  smtp\_server, smtp\_port, email\_from, email\_to, email\_login,
+  email\_pass}.
+
+Esta primeira implementação visa deixar flexível o lançamento,
+nos quesitos: caminho de instalação da aplicação, domínio em que será
+ofertado a aplicação, versão do primeiro lançamento e configurações
+do usuário para enviar e-mail. Porém esta é uma versão beta no qual
+identifiquei um problema, desescalar privilégio dos nodes workers,
+no qual está estático. \textcolor{red}{\textbf{Não mude o nome do
+    usuário}}, pois causará erro ao tentar desescalar. Ao corrigir
+este bug, seria possível escolher o nome do usuário (caminho) onde
+será instalado a aplicação. Outra melhora seria adicionar prefixo do
+caminho, mais nome do usuário.
+
+Outro problema é não tratamento de erro (com um try, catch) no script
+python que, em caso de falha no módulo smtp, a aplicação dispara uma
+exceção de código, onde o crontab irá disparar e-mail com o erro.
+
+Um problema operacional são os dados sensíveis do usuário de e-mail,
+geralmente em ambientes corporativos, nuvem, há um serviço de smtp
+sem a necessidade de autenticação, para hosts específicos, o que
+dispensaria este trecho. De qualquer forma o usuário que irá fazer o
+deploy pode preencher os dados e manter em sigilo em sua máquina de
+trabalho, com tudo, ficará exposto em texto puro no servidor. Acredito
+que este quesito, (apesar de super relevante) para este desafio neste
+momento dispense uma implementação com um mecanismo com hash ou até
+mesmo obter credenciais de um serviço centralizado, como LDAP.
+
+Este \emph{playbook} é dividido em duas partes, primeiro irá executar
+os plays como \emph{root}, e depois como o usuário \emph{webserver}.
+Em algum ponto é necessário escalar privilégios: como
+reiniciar/recarregar o serviço da aplicação, e assim o play
+o faz. Devido o primeiro contato com \emph{Ansible} não apliquei as
+melhores práticas, porém são funcionais. Posso citar \emph{become}, para
+escalar privilégios, pois ao tentar, falha. Isto ocorreu devido ao
+pensamento em sempre deixar o mínimo de privilégios para usuários de
+aplicação no servidor, o ideal é zero privilégios, mas sabemos que no
+mundo real nem sempre é possível. Para permitir o mínimo de
+privilégios, configurei o \emph{sudoers} para dois comandos bem
+específicos, e devem ser executadas exatamente como está na regra,
+(\emph{/bin/systemctl <start/reload> webserver.service}), sem por e nem
+tirar, por definição do \emph{sudo}. O play com \emph{become} falha
+como se não estive no \emph{sudoers}, provavelmente o Ansible está
+executando \textbf{sem} o caminho absoluto, então não é aceito pelo
+\emph{sudo}. Nestes casos implementei via script inline.\\
+
+Executando o playbook:
+
 $$ansible-playbook\ \ \ playbook.yml\ \ \ -l\ \ <server>$$
 
 Ao final da execução deste playbook você terá um ambiente funcional
 rodando a aplicação NodeJS de exemplo, e algumas rotas adicionais para
-gerar uma carga artificial na aplicação.
-
-  % \item Criação de um usuário sem privilégios. Com exceção
-
-  %   Os únicos dois
-  %   exclusivos comandos que este usuário poderá escalar privilégios (root)
-  %   são: iniciar e recarregar a aplicação node~\footnote{Isto se faz
-  %     necessário, pois foi implementado com mecanismo de
-  %     clusterização (Workers), o Master roda como root os demais sem
-  %     privilégios através do \emph{systemd}.}.
-
-    % recarregar a aplicação node~\footnote{Isto se faz 
-    %   necessário, pois foi implementado com mecanismo de
-    %   clusterização (Workers), o Master roda como root os demais sem
-    %   privilégios através do \emph{systemd}.}.
+gerar uma carga artificial na aplicação.\\
 
 Os passos de cada play é:
 \begin{enumerate}
@@ -178,7 +214,7 @@ sinal ele permanece tentando com um intervalo de 5 sec
 (configurável). Um pequeno engano no comentário do código (commit:
 134c9d) fez a carga do servidor subir, pois o systemd incessantemente,
 inciava o processo da aplicação node e em seguida ele ``morria'', pois
-a plicação gerava uma ``exceção de código'' não trada, neste caso
+a plicação gerava uma exceção de código não trada, neste caso
 comentários com '\#', ao invés de padrão C (//,
 /\textasteriskcentered\textasteriskcentered).
 
@@ -190,7 +226,7 @@ O link para o script pode ser encontrado em:\\
 \href{https://github.com/alessandro11/desafio-2/blob/master/scripts/health\_check.sh}{https://github.com/alessandro11/desafio-2/blob/master/scripts/health\_check.sh}
 
 
-\subsubsection{Balanceamento de carga}
+\subsubsection{Balanceamento de carga} \label{sec:balanceamento}
 Além do mecanismo de balanceamento do item~\ref{i:nginx}, foi
 implementado o serviço (daemon) utilizando cluster de workers
 (processos nodes), em  outras palavras o daemon
@@ -275,14 +311,17 @@ variáveis do Ansible, conforme seção~\ref{sec:playbook}.)
 $$./log\_parser.py$$
 
 A saída será uma tabela (no stdout) com as colunas URL, COD. e FREQ, este é o
-número de requisições nas últimas 24h, por código e url, ou seja, foi
-agregado por recurso e código de resposta. 
+número de requisições nas últimas 24h, agregadas por código e url.
 
 Explorando o algoritmo eficiente de dicionário do python, é possível
-agregar os dados de logs com milhares de linhas.
+agregar os dados de logs com milhares de linhas, em uns dos testes
+fora executado em um arquivo com mais 50k linhas. Os resultados e logs
+podem ser obtidos no repositório:
+\href{https://github.com/alessandro11/linx-challenge/tree/master/results}{resultados}.
 
-A seguinte entrada foi gerada no \emph{crontab} do root (é necessário
-acesso ao \textit{/var/log/nginx/access\_webserver.log}).
+A entrada abaixo foi gerada no \emph{crontab} do root (é necessário
+acesso ao \textit{/var/log/nginx/access\_webserver.log}) para ser
+executado todos os dias à meia-noite.
 
 \begin{verbatim}
 0 0    * * *    /home/webserver/current/scripts/log\_parser.py
