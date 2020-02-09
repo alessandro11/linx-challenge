@@ -7,10 +7,17 @@ utilizando as ferramentas que julgar mais adequadas. Como resposta,
 esperamos que você nos diga o que você acha que eles fazem e quais
 foram as ferramentas usadas para isso, bem como uma linha geral do seu
 raciocínio para chegar às conclusões.\\
+<<<<<<< HEAD
 
 \par Nesta seção, para encontrar as soluções dos problemas propostos, foi
 utilizado primordialmente as seguintes ferramentas:
 
+=======
+
+\par Nesta seção, para encontrar as soluções dos problemas propostos, foi
+utilizado primordialmente as seguintes ferramentas:
+
+>>>>>>> bin-ddb1c9
 \begin{verbatim}
 GNU objdump (GNU Binutils) 2.33.1
 Copyright (C) 2019 Free Software Foundation, Inc.
@@ -50,6 +57,7 @@ ferramenta anterior, executando o assembly passo a passo.
 
 Sua execução com os seguintes parâmetros:
 $$gdb \ \ -tui \ \ <programa>$$
+<<<<<<< HEAD
 
 Os binários e seus respectivos disassembly, um pequeno leia-me podem
 ser encontrados no repositório:\\
@@ -61,6 +69,20 @@ ser encontrados no repositório:\\
 \noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}\\
 Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}
 
+=======
+
+Os binários e seus respectivos disassembly, um pequeno leia-me podem
+ser encontrados no repositório:\\
+
+\href{https://github.com/alessandro11/desafio-1}{https://github.com/alessandro11/desafio-1}
+
+
+\subsection{Salvando entrada do usuário em /tmp/<USER>}
+Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}
+Disassembly:
+\href{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}
+
+>>>>>>> bin-ddb1c9
 Este programa abre um arquivo no diretório ``/tmp/'', sendo nome do
 arquivo o usuário obtido do ambiente de execução do programa. Espera a
 entrada do usuário, quando finalizado com um \emph{Enter}, o
@@ -89,7 +111,11 @@ arquivo aberto. Na 4007fe fecha o arquivo e o programa é encerrado.
 
 
 \subsection{Conway's Game of Life}
+<<<<<<< HEAD
 \noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/d3ea79}{d3ea79}\\
+=======
+Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/d3ea79}{d3ea79}
+>>>>>>> bin-ddb1c9
 Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
 
 Este programa gera a saída do jogo Conway's Game of Life,
@@ -136,7 +162,11 @@ subsequente escreve no arquivo e então fecha-o.\\
 
 
 \subsection{Fork()}
+<<<<<<< HEAD
 \noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/da87fa}{da87fa}\\
+=======
+Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/da87fa}{da87fa}
+>>>>>>> bin-ddb1c9
 Disassembly:
 \href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
 
@@ -174,4 +204,25 @@ finalizar processo.
 Disassembly:
 \href{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}\\
 
-Solução ainda parcial e não conclusiva.
+\par Este programa abre três threads e atende requisições http,
+cujo programa escuta em localhost na porta 8011. Ao fazer uma
+requisição http para \texttt{http://localhost:8011} apenas o caractere
+'!' é retornado. A depuração deste código é bem complicado, por ter
+sido compilado com a linguagem GO é gerado um backtrace de mais de 20
+chamadas, e em paralelo para todas as threads, o resulta em vários
+fluxos de execuções. Portando a abordagem de leitura do dissasembly,
+como nos anteriores, e depuração via \emph{gdb} não foram
+suficientes.
+
+Para triangular o que o programa faz, utilizei mais algumas
+ferramentas: \emph{lsof} para identificar quais descritores de
+arquivos abertos ele possui, como é mostrado na figura \todo{figura
+  lsof ddb1c9}. O programa e seu parâmetros \emph{netstat -natup}
+(\emph{ss -latp}, no qual retornam processos e suas respectivas portas
+abertas. O \emph{netcat localhost 8011}/\emph{telnet localhost 8011}
+para tentar enviar GET, e outros comandos aleatórios. Para identificar
+possível comunicação nesta porta utilizei \emph{tcpdump -vv -n -i lo
+  port 8011} para monitorar o tráfego de rede.
+
+Como conclusão do funcionamento, reforço o parágrafo um, atende
+requisições http retornando '!'.
