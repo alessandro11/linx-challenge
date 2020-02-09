@@ -61,15 +61,15 @@ esclarecer qualquer ponto.
 Pós a leitura do enunciado do desafio, comecei a selecionar quais
 tecnologias iria utilizar, com exceção da NodeJS já pré
 estabelecida. Dentro dos meus critérios para a seleção das tecnologias
-são: performance, atividade de correções de possíveis bugs, bem como
+são: performance, atividade e correções de possíveis bugs, bem como
 novas funcionalidades, ou seja, desenvolvimento ativo da tecnologia.
 Como serviço http selecionei Nginx, sua característica de abrir
-processo leve (threads) ao invés de processos já o torna
+processos leve (threads) ao invés de processos já o torna
 atraente. Como referência posso
 citar~\footnote{\href{https://www.digitalocean.com/community/tutorials/apache-vs-nginx-practical-considerations}{https://www.digitalocean.com/community/tutorials/apache-vs-nginx-practical-considerations}}
 com uma opinião, com tudo há diversos sites fazendo avaliações dos
-prós e contras de Apache e Nginx. Os outros quesitos também foram
-atendidos.
+prós e contras de Apache e Nginx, os mais utilizados. Os outros
+quesitos também foram atendidos.
 
 Ferramentas de automação, há diversas no mercado, como \emph{Chef, Puppet,
 Ansible, Saltstack} etc. Selecionei a \emph{\textbf{Ansible}} devido a Linx Impulse
@@ -82,12 +82,17 @@ infraestrutura de nuvem.
 Para simular meu ambiente, gerei três máquinas virtuais utilizando a
 Virtual Machine Monitor (VMM) Qemu e libvirt. Criei uma rede separa e
 fazendo NAT pelo meu desktop para chegar a Internet. Gerei uma imagem
-de Ubuntu 18.04 a partir de um debootstrap, e apliquei as mudanças em
+de Ubuntu 18.04, e apliquei as mudanças em
 cima de alguns ``snapshoots copy on write''.
 
 Serviços de inicialização da aplicação NodeJS foi utilizado o sistema
-nativo, \emph{Systemd}. Gerente de tarefas para os scripts
-\emph{crontab}.
+nativo, \emph{Systemd}, apesar de existirem outros como \emph{PM2},
+recomendado para node, \emph{Supervisor} mais antigo, são boas
+ferramentas, com tudo se estes processos (daemon) falham, a aplicação ficará
+``órpã'' de monitoramento. Por outro lado o \emph{systemd} pode sofrer
+a mesma coisa, porém ele é o processo 1, em caso de falha todo o
+sistema operacional para, logo o confiamos, portanto é o mais robusto e
+ainda nativo. Como gerente de tarefas para os scripts \emph{crontab}.
 
 
 \subsection{Do ambiente utilizado}
@@ -112,11 +117,13 @@ python version = 3.8.1
 \end{verbatim}
 
 
-\subsection{Execução do gerenciador de configuração; \emph{Ansible}}
+\subsection{Execução do gerenciador de configuração; \emph{Ansible}} \label{sec:playbook}
+\todo{escrever variáveis}
 $$ansible-playbook\ \ \ playbook.yml\ \ \ -l\ \ <server>$$
 
 Ao final da execução deste playbook você terá um ambiente funcional
-rodando a aplicação NodeJS de exemplo.
+rodando a aplicação NodeJS de exemplo, e algumas rotas adicionais para
+gerar uma carga artificial na aplicação.
 
   % \item Criação de um usuário sem privilégios. Com exceção
 
@@ -138,7 +145,10 @@ Os passos de cada play é:
      definida na variável do ambiente \emph{Ansible}.
      \item Criação de um usuário sem privilégios. Com exceção: iniciar e
      recarregar a aplicação node~\footnote{Isto se faz 
-     necessário, devido a implementação através de clusterização.}
+     necessário, devido a implementação através de
+     clusterização}. Configurar este usuário para executar ssh no
+   localhost, para o primeiro deploy, ao final será removido a chave
+   ssh sem senha gerada pelo play.
     \item Cadastrar a chave pública (\emph{ssh}) da origem do comando
       para o servidor, possibilitando mais segurança no ambiente de deploy.
     \item Resiliência do serviço, através do \emph{systemd}. No qual
@@ -146,9 +156,9 @@ Os passos de cada play é:
         o reinicia, e mais script de monitoramento para tal. \label{i:systemd}
     \item Nginx com Proxy Reverso; balanceando a carga com
       \emph{round-robin} entre os possíveis 32 cores. Com um node
-      worker para core. \label{i:nginx}
+      worker para core, mais um Master. \label{i:nginx}
     \item Script que todos os dias à meia noite faz o parse do access
-      log e gera uma tabela agregada por url, (recurso), código e suas
+      log e gera uma tabela agregada por url (recurso), código e suas
       respectivas frequências de acesso.
     \item Instalação do ambiente node virtual Node Version Manager
       (NVM).
@@ -162,15 +172,18 @@ Os passos de cada play é:
 
 \subsubsection{Disponibilidade da aplicação}
 O mecanismo nativo do systemd~\ref{i:systemd} permite a monitoração dos
-processos, e em caso de falha e ou não resposta, os processos com falha  recebem o sinal para
-encerrar e iniciar novamente, e ainda em caso de falha do envio d
-sinal ele permanece em um intervalo de 5 sec (configurável) tentar novamente. Um pequeno engano no
-comentário do código (commit: 134c9d) fez a carga do servidor subir, pois
-o systemd incessantemente inciava o processo da aplicação node, o que
-resultava em o daemon morrer e systemd tentar subir em um laço.
+processos, e em caso de falha e ou não resposta, os processos com falha recebem o sinal para
+encerrar e iniciar novamente, e ainda em caso de falha do envio do
+sinal ele permanece tentando com um intervalo de 5 sec
+(configurável). Um pequeno engano no comentário do código (commit:
+134c9d) fez a carga do servidor subir, pois o systemd incessantemente,
+inciava o processo da aplicação node e em seguida ele ``morria'', pois
+a plicação gerava uma ``exceção de código'' não trada, neste caso
+comentários com '\#', ao invés de padrão C (//,
+/\textasteriskcentered\textasteriskcentered).
 
 E ainda bash script minuto a minuto verificando se o processo está rodando, e se
-uma rota está retornando o código OK (200), se um dos caso não for
+uma rota está retornando o código OK (200), se um dos casos não for
 satisfeito o serviço é reiniciado.
 
 O link para o script pode ser encontrado em:\\
@@ -179,26 +192,62 @@ O link para o script pode ser encontrado em:\\
 
 \subsubsection{Balanceamento de carga}
 Além do mecanismo de balanceamento do item~\ref{i:nginx}, foi
-implementado o serviço (daemon) utilizando cluster de node workers, em
-outras palavras o daemon
+implementado o serviço (daemon) utilizando cluster de workers
+(processos nodes), em  outras palavras o daemon
 (\href{https://github.com/alessandro11/desafio-2/blob/master/shipitfile.js}{server.js}
 irá executar um processo a mais do que o número de cores do servidor,
-este é o Master, quem delega para os demais workers. O Master também
-possui mecanismo de balanceamento de carga, com tudo foi implementado
-load balance com o Nginx. O motivo é uso de memória, Nginx é mais
-eficiente e utiliza menos memória. As conexões https estão
-configuradas, porém é preciso gerar o certificado e retirar o
-comentário apontando para o certificado obtido de acordo com o
-domínio. Esta configuração também pode ser encontrado no arquivo de
-configuração abaixo.
+este é o Master, quem delega para os demais workers, gera o arquivo de
+de seu pid, logs etc. O Master também possui mecanismo de
+balanceamento de carga, com tudo foi implementado balanceamento de
+carga com o Nginx. O motivo da preferência por Nginx é uso de memória,
+este é mais eficiente consequentemente utilizando menos memória. As
+conexões https estão configuradas, porém é preciso 
+gerar o certificado e apontar para o caminho do certificado
+gerado.
 
-A configuração do Upstream pode ser encontrado no seguinte link:\\
+A \emph{daemon} da aplicação foi construída de forma modular, ou seja,
+\emph{server.js}, apenas inclui \emph{app.js} no qual poderia ter sua
+própria estrutura hierarquia de middlewares, rotas etc, como é
+mostrado no trecho de código abaixo:
+
+Trecho de código retirado do fonte \href{https://github.com/alessandro11/desafio-2/blob/master/server.js}{server.js}:
+\begin{verbatim}
+...
+100: } else {  // New worker running; load app
+        var app = require('./app');
+
+        app.listen(port, function () {
+            console.log('Example app listening on port ' + port + '!');
+
+            // Check if we are running as root
+            if (process.getgid() === 0) {
+                process.setgid('webserver');
+                process.setuid('webserver');
+            }
+        });
+112: }
+...
+\end{verbatim}
+
+A configuração do upstream pode ser encontrado no seguinte link:\\
 \href{https://github.com/alessandro11/ansible-desafio-2/blob/master/setup\_desafio-2/webserver.com}{https://github.com/alessandro11/ansible-desafio-2/blob/master/setup\_desafio-2/webserver.com}
 
 
 \subsubsection{Throughput máximo}
+A métrica utilizada em meu teste foi conexões por segundo
+simultaneamente. O script abaixo gera conexões com o comando
+\emph{curl ... -m 2 -w \%\{http\_code\} \%\{time\_starttransfer\}}, no
+qual retorna código de respostas e tempo das requisições em no máximo
+2 segundos.
+
+Executando o teste (sem / no final do domínio):
+$$./workload.sh\ <num\ req>\ <domain>$$
+Caso não seja passado nenhum parâmetro, será executado 100 requisições
+para o domínio \emph{webserver.com} (meu domínio local, em minha infra; note
+que este domínio tem registro),
+
 Um
-\href{https://github.com/alessandro11/desafio-2/blob/master/scripts/workload.sh}{script}
+\label{script:carga}
 em bash executa requisições em paralelo ao servidor http. Como não há
 carga no servidor pelo programa de exemplo, no qual apenas retorna
 'Hello World!' código OK (200) (não gera carga). Então para gerá-la
@@ -208,24 +257,59 @@ alguns milissegundos. Podemos observar o servidor como idle entre um
 sleep e outro como se estivesse esperando resposta de outro componente
 do sistema, deste modo pude contrapor a primeira carga. Esta, resultou
 em possíveis centenas de requisições simultâneas o que é irreal. Com a
-carga artificial cheguei em média atingi 24 conexões simultâneas, com
+carga artificial cheguei em média atingir 24 conexões simultâneas, com
 apenas dois workers (duas VCPUS),
 
-Os resultados das análises e logs estão no repositório em:\\
+O script e resultados das análises, logs, estão no repositório em:\\
 \href{https://github.com/alessandro11/desafio-2/tree/master/scripts}{https://github.com/alessandro11/desafio-2/tree/master/scripts}.
 
 
+\subsubsection{Parser do log e relatório por e-mail}
+Um script em python foi desenvolvido para está tarefa, este pode ser
+encontrado no link ao final desta seção.
+
+Execução do script:\\
+(Caso queira receber por e-mail é necessário ter preenchido as
+variáveis do Ansible, conforme seção~\ref{sec:playbook}.)
+
+$$./log\_parser.py$$
+
+A saída será uma tabela (no stdout) com as colunas URL, COD. e FREQ, este é o
+número de requisições nas últimas 24h, por código e url, ou seja, foi
+agregado por recurso e código de resposta. 
+
+Explorando o algoritmo eficiente de dicionário do python, é possível
+agregar os dados de logs com milhares de linhas.
+
+A seguinte entrada foi gerada no \emph{crontab} do root (é necessário
+acesso ao \textit{/var/log/nginx/access\_webserver.log}).
+
+\begin{verbatim}
+0 0    * * *    /home/webserver/current/scripts/log\_parser.py
+\end{verbatim}
+
+O fonte do script pode ser encontrado no link:\\
+\href{https://github.com/alessandro11/desafio-2/blob/master/scripts/log\_parser.py}{https://github.com/alessandro11/desafio-2/blob/master/scripts/log\_parser.py} \label{lnk:logparser}
+
+
 \subsubsection{Deploy e Rollback}
+Este mecanismo foi implementado através de dois pacotes nodes obtidos com
+\emph{npm}: shipit-cli@5.1.0 e shipit-deploy@5.1.0. \textbf{Para fazer o depoy,
+é necessário executar o git push das mudanças no repositório que se deseja lançar}.
+
 Primeiramente você deve editar o arquivo
 \href{https://github.com/alessandro11/desafio-2/blob/master/shipitfile.js}{shipitfile.js}
 localizado na raiz do repositório, alterando as seguintes variáveis:
 
-Home do usuário onde foi clonado o repositório.\\
+Home do usuário onde foi clonado o repositório no servidor. \textbf{Caso não
+tenha alterado o playbook não é necessário modificar.}\\
 
 \color{red}
 Aponte para um caminho que não seja a raiz do repositório,
-raiz da Home do usuário por exemplo. Este cuidado deve ser tomado se
-for setado a variável para limpar o diretório.
+Este cuidado deve ser tomado se for setado a variável para limpar o
+diretório do deploy. Ou seja, em minha configuração, será clonado
+para \textit{/home/webserver/desafio-2}, e o deploy ocorrerá em
+\textit{/home/webserver/releases}.
 
 \color{black}
 \begin{verbatim}
@@ -246,7 +330,7 @@ tag: 'rc-0.0.1',
 ...
 \end{verbatim}
 
-Usuário e domínio/IP do servidor.
+Usuário e domínio/IP do servidor que será feio o deploy.
 \begin{verbatim}
 ...
     production: {
@@ -255,10 +339,30 @@ Usuário e domínio/IP do servidor.
 ...
 \end{verbatim}
 
+É possível fazer uma sobre escrita das configurações padrões,
+como \emph{branch} por exemplo, caso a configuração \emph{production}
+possua um branch chamado production:
+\begin{verbatim}
+...
+    production: {
+        servers: 'webserver@webserver.com',
+        branch: 'production',
+    },
+...
+
+...
+    development: {
+        servers: 'webserver@webserverdev.com',
+        branch: 'dev',
+    },
+...
+\end{verbatim}
+
 Aponte para o caminho da \$HOME onde a aplicação está. Este é o
 trigger que é gerado após o deploy com sucesso, então possíveis novos
 pacotes serão instalados, bem como o serviço irá recarregar os workers
 com as novas mudanças.
+
 \begin{verbatim}
     await shipit.remote('cd current; \
          /home/webserver/.nvm/nvm-exec npm install; \
@@ -278,10 +382,10 @@ A chave ssh será usado para acessar o servidor e executar o
 deploy. Será extraído o último commit da branch ou tag apontado pelo
 shipitfile e clonado para o diretório
 \textit{<\textit{deployTo:}>/releases} no servidor remoto. Você
-encontrará os diretórios com o último commit do deploy, eles são um
-timestamp. Um link simbólico chamado \textit{<deployTo:>/current} aponta para o
-diretório do deploy atual em
-\textit{<deployTo:>/releases/20200208160632>} e.g.
+encontrará os diretórios com o último commit do deploy, o nome dos
+diretórios são um timestamp. Um link simbólico chamado
+\textit{<deployTo:>/current} aponta para o diretório do deploy atual
+em \textit{<deployTo:>/releases/20200208160632>} e.g. 
 
 
 \subsubsection{Rollback}
