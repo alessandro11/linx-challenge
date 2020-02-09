@@ -12,17 +12,13 @@ raciocínio para chegar às conclusões.\\
 utilizado primordialmente as seguintes ferramentas:
 
 \begin{verbatim}
-GNU objdump (GNU Binutils) 2.33.1
-Copyright (C) 2019 Free Software Foundation, Inc.
-This program is free software; you may redistribute it under the terms of
-the GNU General Public License version 3 or (at your option) any later version.
-This program has absolutely no warranty.
+objdump (GNU Binutils) 2.33.1
 \end{verbatim}
 
-Esta ferramenta foi utilizada para obter o desmontagem (disassembly)
+Esta ferramenta foi utilizada para obter a desmontagem (disassembly)
 dos binários, bem como fazer uma analise das seções e símbolos dos
 binários. Desta forma, possibilitando uma leitura do código montado
-(assembly).
+(assembly).\\
 
 Os seguintes comandos foram utilizados para analise das seções e ou
 cabeçalhos:
@@ -38,37 +34,32 @@ $$objdump \ \ -D \ \ <nome\_do\_arquivo>$$
 $$objdump \ \ -d \ \ <nome\_do\_arquivo>$$
 
 \begin{verbatim}
-GNU gdb (GDB) 8.3.1
-Copyright (C) 2019 Free Software Foundation, Inc.
-License GPLv3+: GNU GPL version 3 or later <http://gnu.org/licenses/gpl.html>
-This is free software: you are free to change and redistribute it.
-There is NO WARRANTY, to the extent permitted by law.
+gdb (GDB) 8.3.1
 \end{verbatim}
 
-Esta possibilitou a confirmação de qualquer conjectura obtida pela
-ferramenta anterior, executando o assembly passo a passo.
+Esta ferramenta possibilitou a confirmação de qualquer conjectura obtida pela
+ferramenta anterior (\emph{objdump}), executando o assembly passo a passo.
 
 Sua execução com os seguintes parâmetros:
 $$gdb \ \ -tui \ \ <programa>$$
 
-\subsection{Salvando entrada do usuário em /tmp/<USER>}
+\subsection{Salvando entrada do usuário em /tmp/\$USER}
 \noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}\\
-Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}
-
-Os binários e seus respectivos disassembly, e um pequeno leia-me podem
+Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}\\
+\par
+Os binários, seus respectivos disassembly e um \textit{leia-me} podem
 ser encontrados no repositório:\\
+\href{https://github.com/alessandro11/desafio-1}{https://github.com/alessandro11/desafio-1}\\
 
-\href{https://github.com/alessandro11/desafio-1}{https://github.com/alessandro11/desafio-1}
+\par Este programa abre um arquivo no diretório ``/tmp/'', sendo o nome do
+arquivo extraído da variável de ambiente (\$USER) do programa em execução. E
+então o programa espera ser digitado um texto (máximo 24 carácteres)
+para salvar o arquivo ``/tmp/\$USER''.
 
-Este programa abre um arquivo no diretório ``/tmp/'', sendo nome do
-arquivo o usuário obtido do ambiente de execução do programa. Espera a
-entrada do usuário, quando finalizado com um \emph{Enter}, o
-dado entrado é salvo no arquivo ``/tmp/USER''.
+\lstinputlisting[caption = {Escreve a entrada do usuário em ``/tmp/\$USER''.},label={prog:cc9621}]{cc9621.as}
 
-\lstinputlisting[caption = {Escreve entrada do usuário em ``/tmp/USER''.},label={prog:cc9621}]{cc9621.as}
-
-No Assembly~\ref{prog:cc9621} é mostrado o \emph{main} do programa, as
-outras seções foram truncadas, assim focamos apenas no núcleo de que o
+No Assembly~\ref{prog:cc9621} é mostrado o \emph{main} do programa (as
+outras seções foram truncadas) assim focamos apenas no núcleo de que o
 programa faz (não irei abordar cada instrução, apenas as
 relevantes). Também é apresentado como comentários em inglês mais
 detalhes das instruções relevantes.
@@ -78,21 +69,21 @@ armazena a string ``/tmp/'' em uma variável na pilha. A instrução
 400770 preenche com zeros um buffer de tamanho 24, indicado pela
 constante armazenado em \emph{RCX}, no qual controla quantas vezes será
 repetido a instrução \emph{stos}. Este buffer será usado pelo
-\emph(scanf). Na instrução 400778 é obtido o usuário que está
+\emph{scanf}. Na instrução 400778 é obtido o usuário que está
 executando o programa, em meu caso o usuário é ``m3cool''. A 400798
 concatena a string ``/tmp/'' com ``m3cool''. Na 4007b1 é feito a
-chamada ao \emph{scanf} para obter a entrada do usuário, uma string
-qualquer. A 4007c5 abre o arquivo no caminho ``/tmp/m3cool''. Na
-4007ef (\emph(fputs) escreve a string obtida pelo \emph{scanf} no
+chamada ao \emph{scanf} para obter a entrada do usuário, na string. A
+4007c5 abre o arquivo no caminho ``/tmp/m3cool''. Na
+4007ef \emph{fputs} escreve a string obtida pelo \emph{scanf} no
 arquivo aberto. Na 4007fe fecha o arquivo e o programa é encerrado.
 
 
 \subsection{Conway's Game of Life}
 \noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/d3ea79}{d3ea79}\\
-Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
-
+Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}\\
+\par
 Este programa gera a saída do jogo Conway's Game of Life,
-escrevendo-o no arquivo ``/tmp/<USER>''. O
+escrevendo-o no arquivo ``/tmp/\$USER''. O
 link~\footnote{\href{http://en.wikipedia.org/wiki/Conway\%27s\_Game\_of\_Life}{http://en.wikipedia.org/wiki/Conway\%27s\_Game\_of\_Life}}
 para a Wiki do jogo também é escrito no arquivo. A saída gerada na
 execução deste programa está no repositório em
@@ -100,27 +91,27 @@ execução deste programa está no repositório em
 
 O disassembly parcial do binário pode ser observado nas rotinas abaixo:
 
-\lstinputlisting[caption = {Remove e recria o arquivo ``/tmp/<USER>''
+\lstinputlisting[caption = {Remove e recria o arquivo ``/tmp/\$USER''
 com o Conway's Game of Life},label={prog:d3ea79-main}]{d3ea79-main.as}
 
 No Assembly~\ref{prog:d3ea79-main} observamos as respectivas chamadas:
-\emph{clear}, \emph{welcome} \emph{play}. Iremos abordar cada uma das rotinas.\\
+\emph{clear}, \emph{welcome} e \emph{play}. Iremos abordar cada uma das rotinas.\\
 
 \par\textbf{\emph{clear}}:
 \lstinputlisting[caption = {Remove arquivo
- ``/tmp/<USER>''},label={prog:d3ea79-clear}]{d3ea79-clear.as}
+ ``/tmp/\$USER''},label={prog:d3ea79-clear}]{d3ea79-clear.as}
 
 A instrução 400967 atribui ao registrador \emph{RAX}
 a string ``/tmp/''. Na instrução 400992 é atribuído o ponteiro para a
 string (constante) ``USER'', no qual é passado como parâmetro para
-\emph{getenv}. Este retorna o valor da variável de ambiente <USER>.
+\emph{getenv}. Este retorna o valor da variável de ambiente \$USER.
 A instrução 4009bc concatena a string que estava em \emph{RAX} e valor da
 variável de ambiente. No meu caso, resultando na string
 ``/tmp/m3cool''. A 4009cb remove o arquivo ``/tmp/m3cool''.\\
 
 \par\textbf{\emph{welcome}}:
 \lstinputlisting[caption = {Escreve cabeçalho no arquivo
- ``/tmp/<USER>''},label={prog:d3ea79-welcome}]{d3ea79-welcome.as}
+ ``/tmp/\$USER''},label={prog:d3ea79-welcome}]{d3ea79-welcome.as}
 
 O Assembly~\ref{prog:d3ea79-welcome}, na instrução 400a00 à 400a55
 concatena strings como em~\ref{prog:d3ea79-clear}. Instrução 400a69
@@ -137,14 +128,14 @@ subsequente escreve no arquivo e então fecha-o.\\
 \subsection{Fork()}
 \noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/da87fa}{da87fa}\\
 Disassembly:
-\href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
-
+\href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}\\
+\par
 Este programa fica em um laço infinito, ou até receber um SIGHUP,
 executando \emph{fork()} dez vezes. Na décima, é executado um
 \emph{sleep} de dez segundos, e torna a executar outros dez
 forks. Como é mapeado SIGCHLD para SIGHUP, o processo filho inicia e
-encerra.
-
+encerra.\\
+\par
 Analisando a desmontagem do binário no Assembly~\ref{prog:da87fa}:
 
 \lstinputlisting[caption = {Fork do processo},label={prog:da87fa}]{da87fa.as}
@@ -157,8 +148,8 @@ feitos enquanto o registrador \emph{EBX} não atinge dez, um if. Quando o
 registrador \emph{EBX} atinge dez, então é executado um \emph{sleep} de dez
 segundos e volta para o inicio do laço.
 
-O interessante para sair do laço, finalizando o processo, nunca
-ocorrerá. Conforme as instruções 40063f executa uma comparação
+O ponto interessante a se observar neste código é a condição de saída do
+laçom a fim de finalizar o programa. Conforme as instruções 40063f executa uma comparação
 \emph{test}, no qual somente será igual se o registrador \emph{EAX} for zero,
 porém a instrução lê o pid do processo filho que foi salvo na pilha,
 atribui este valor ao registrador \emph{EAX} e executa o \emph{test}, logo
@@ -176,7 +167,7 @@ Disassembly:
 \par Este programa abre três threads e atende requisições http,
 cujo programa escuta em localhost na porta 8011. Ao fazer uma
 requisição http para \texttt{http://localhost:8011} apenas o caractere
-'!' é retornado. A depuração deste código é bem complicado, por ter
+``!'' é retornado. A depuração deste código é bem complicado, por ter
 sido compilado com a linguagem GO é gerado um backtrace de mais de 20
 chamadas, e em paralelo para todas as threads, o resulta em vários
 fluxos de execuções. Portando a abordagem de leitura do dissasembly,
@@ -185,13 +176,12 @@ suficientes.
 
 Para triangular o que o programa faz, utilizei mais algumas
 ferramentas: \emph{lsof} para identificar quais descritores de
-arquivos abertos ele possui, como é mostrado na figura \todo{figura
-  lsof ddb1c9}. O programa e seu parâmetros \emph{netstat -natup}
-(\emph{ss -latp}, no qual retornam processos e suas respectivas portas
+arquivos abertos ele possui. O programa e seus parâmetros \emph{netstat -natup}
+(\emph{ss -latp}), no qual retornam processos e suas respectivas portas
 abertas. O \emph{netcat localhost 8011}/\emph{telnet localhost 8011}
 para tentar enviar GET, e outros comandos aleatórios. Para identificar
 possível comunicação nesta porta utilizei \emph{tcpdump -vv -n -i lo
   port 8011} para monitorar o tráfego de rede.
 
-Como conclusão do funcionamento, reforço o parágrafo um, atende
-requisições http retornando '!'.
+Como conclusão do funcionamento deste programa, reforço o parágrafo
+um. Ele atende requisições http retornado ``!''.
