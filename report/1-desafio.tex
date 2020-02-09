@@ -58,9 +58,8 @@ ser encontrados no repositório:\\
 
 
 \subsection{Salvando entrada do usuário em /tmp/<USER>}
-Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}
-Disassembly:
-\href{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}
+\noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/cc9621}{cc9621}\\
+Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}{https://github.com/alessandro11/desafio-1/blob/master/cc9621.as}
 
 Este programa abre um arquivo no diretório ``/tmp/'', sendo nome do
 arquivo o usuário obtido do ambiente de execução do programa. Espera a
@@ -90,7 +89,7 @@ arquivo aberto. Na 4007fe fecha o arquivo e o programa é encerrado.
 
 
 \subsection{Conway's Game of Life}
-Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/d3ea79}{d3ea79}
+\noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/d3ea79}{d3ea79}\\
 Disassembly: \href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
 
 Este programa gera a saída do jogo Conway's Game of Life,
@@ -137,7 +136,7 @@ subsequente escreve no arquivo e então fecha-o.\\
 
 
 \subsection{Fork()}
-Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/da87fa}{da87fa}
+\noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/da87fa}{da87fa}\\
 Disassembly:
 \href{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}{https://github.com/alessandro11/desafio-1/blob/master/d3ea79.as}
 
@@ -168,3 +167,11 @@ não é atribuído pid zero para processos, por definição do SO. Então a
 instrução 400641 sempre fará o salto para a verificação se já executou
 os dez forks antes do \emph{sleep}, e nunca executará 400648,
 finalizar processo.
+
+
+\subsection{Multi Thread escutando na porta 8011}
+\noindent Binário: \href{https://s3.amazonaws.com/chaordic-desafio-cloud/ddb1c9}{ddb1c9}\\
+Disassembly:
+\href{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}\\
+
+Solução ainda parcial e não conclusiva.
