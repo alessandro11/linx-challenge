@@ -61,7 +61,7 @@ esclarecer qualquer ponto.''
 Pós a leitura do enunciado do desafio, comecei a selecionar quais
 tecnologias iria utilizar, com exceção da NodeJS já pré
 estabelecida. Dentro dos meus critérios para a seleção das tecnologias
-são: performance, atividade e correções de possíveis bugs, bem como
+estão: performance, atividade e correções de possíveis bugs, bem como
 novas funcionalidades, ou seja, desenvolvimento ativo da tecnologia.
 Como serviço http selecionei Nginx, sua característica de abrir
 processos leve (threads) ao invés de processos já o torna
@@ -80,10 +80,10 @@ amplamente utilizado por muitas distribuições Linux, muito comum em
 infraestrutura de nuvem.
 
 Para simular meu ambiente, gerei três máquinas virtuais utilizando a
-Virtual Machine Monitor (VMM) Qemu e libvirt. Criei uma rede separa e
-fazendo NAT pelo meu desktop para chegar a Internet. Gerei uma imagem
-de Ubuntu 18.04, e apliquei as mudanças em
-cima de alguns ``snapshoots copy on write''.
+Virtual Machine Monitor (VMM) Qemu e libvirt. Criei uma segunda rede e
+configurei Network Address Translation (NAT) pelo meu desktop para
+chegar a Internet. Gerei uma imagem de Ubuntu 18.04, e apliquei as
+mudanças em cima de alguns ``snapshoots copy on write''.
 
 Serviços de inicialização da aplicação NodeJS foi utilizado o sistema
 nativo, \emph{Systemd}, apesar de existirem outros como \emph{PM2},
@@ -140,7 +140,7 @@ python que, em caso de falha no módulo smtp, a aplicação dispara uma
 exceção de código, onde o crontab irá disparar e-mail com o erro.
 
 Um problema operacional são os dados sensíveis do usuário de e-mail,
-geralmente em ambientes corporativos, nuvem, há um serviço de smtp
+geralmente em ambientes corporativos (nuvem) há um serviço de smtp
 sem a necessidade de autenticação, para hosts específicos, o que
 dispensaria este trecho. De qualquer forma o usuário que irá fazer o
 deploy pode preencher os dados e manter em sigilo em sua máquina de
@@ -229,8 +229,7 @@ O link para o script pode ser encontrado em:\\
 \subsubsection{Balanceamento de carga} \label{sec:balanceamento}
 Além do mecanismo de balanceamento do item~\ref{i:nginx}, foi
 implementado o serviço (daemon) utilizando cluster de workers
-(processos nodes), em  outras palavras o daemon
-(\href{https://github.com/alessandro11/desafio-2/blob/master/shipitfile.js}{server.js}
+(processos nodes), em  outras palavras o daemon server.js
 irá executar um processo a mais do que o número de cores do servidor,
 este é o Master, quem delega para os demais workers, gera o arquivo de
 de seu pid, logs etc. O Master também possui mecanismo de
@@ -413,7 +412,8 @@ com as novas mudanças.
 
 \subsubsection{Deploy}
 Execute o comando abaixo a partir do diretório do
-\emph{shipitfile.js}:
+\emph{shipitfile.js} (\textbf{a \emph{branch} ou \empth{tag}} deve
+estar no repositório remoto):
 
 $$npx\ \ shipit\ \ production\ \ deploy$$
 

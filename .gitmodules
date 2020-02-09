@@ -4,3 +4,6 @@
 [submodule "desafio-2"]
 	path = desafio-2
 	url = https://github.com/alessandro11/desafio-2.git
+[submodule "ansible-desafio-2"]
+	path = ansible-desafio-2
+	url = https://github.com/alessandro11/ansible-desafio-2.git
