@@ -11,5 +11,6 @@ Each entry is described below, also each has got its own README.
 ├── report      - the report made with Latex
 ├── results     - results of tests and logs
 ├── .gitignore  - make git ignore some files
-├── gitmodules  - git submodules setup
+├── .gitmodules - git submodules setup
+└── README.md   - this readme
 </pre>
