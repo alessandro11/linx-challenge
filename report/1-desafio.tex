@@ -175,6 +175,25 @@ finalizar processo.
 Disassembly:
 \href{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}{https://github.com/alessandro11/desafio-1/blob/master/ddb1c9.as}\\
 
-\par Este programa abre três threads para atender requisições http,
+\par Este programa abre três threads e atende requisições http,
 cujo programa escuta em localhost na porta 8011. Ao fazer uma
-requisição http ($http://localhost:8011$) apenas o caractere '!' é retornado.
+requisição http para \texttt{http://localhost:8011} apenas o caractere
+'!' é retornado. A depuração deste código é bem complicado, por ter
+sido compilado com a linguagem GO é gerado um backtrace de mais de 20
+chamadas, e em paralelo para todas as threads, o resulta em vários
+fluxos de execuções. Portando a abordagem de leitura do dissasembly,
+como nos anteriores, e depuração via \emph{gdb} não foram
+suficientes.
+
+Para triangular o que o programa faz, utilizei mais algumas
+ferramentas: \emph{lsof} para identificar quais descritores de
+arquivos abertos ele possui, como é mostrado na figura \todo{figura
+  lsof ddb1c9}. O programa e seu parâmetros \emph{netstat -natup}
+(\emph{ss -latp}, no qual retornam processos e suas respectivas portas
+abertas. O \emph{netcat localhost 8011}/\emph{telnet localhost 8011}
+para tentar enviar GET, e outros comandos aleatórios. Para identificar
+possível comunicação nesta porta utilizei \emph{tcpdump -vv -n -i lo
+  port 8011} para monitorar o tráfego de rede.
+
+Como conclusão do funcionamento, reforço o parágrafo um, atende
+requisições http retornando '!'.
