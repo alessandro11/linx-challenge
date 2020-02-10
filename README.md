@@ -12,5 +12,7 @@ Each entry is described below, also each has got its own README.
 ├── results     - results of tests and logs
 ├── .gitignore  - make git ignore some files
 ├── .gitmodules - git submodules setup
+├── report.pdf  - report compiled from the source above
 └── README.md   - this readme
+
 </pre>
